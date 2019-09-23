@@ -1,2 +1,2 @@
 # DigSilent
-Python Scripts and Resultbox-Parameters for Digsilent PowerFactory 2019
+Python Scripts, DigSilent-Scripts and Resultbox-Parameters for Digsilent PowerFactory 2019
