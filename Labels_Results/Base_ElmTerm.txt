@@ -1,0 +1,6 @@
+$C ---- Format für Klemmleiste ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+# $N,@:e:cStatName
+$FOREACH(e:desc,"# $N,@:e:desc")

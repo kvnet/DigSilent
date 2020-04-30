@@ -1,0 +1,15 @@
+$C ---- Format für Leitung ----
+$C
+$C Kurzschlussberechnung:
+$C Methode: VDE 0102 Teil 0 / DIN EN 60909-0
+$C Ausgabe: 2016
+$C Fehlerart: 1-phasiger Kurzschluss
+$C Berechne: Min.Kurzschlussströme
+$C
+# $N,@:e:loc_name
+# x ( # ) $N,_IF(e:nlnum>1),@:e:nlnum,@:t:loc_name
+# $N,_IF(e:nlnum=1),@:t:loc_name
+$FOREACH(e:desc,"# $N,@:e:desc")
+Länge: #.# # $N,_IFNOT(e:outserv=1),@:e:dline,@:[e:dline
+$C RF=Reduktionsfaktor, VA=Verlegeart
+RF: #.## / VA: in # $N,_IFNOT(e:outserv=1),@:e:fline,@:e:inAir

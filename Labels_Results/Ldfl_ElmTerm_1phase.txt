@@ -1,0 +1,15 @@
+$C ---- Format für zusätzliche Textbox Klemmleiste ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+# $N,@:e:cStatName
+$FOREACH(e:desc,"# $N,@:e:desc")
+# #.## # $N,@:~m:Pflow,@:m:Pflow,@:[m:Pflow
+# #.## # $N,@:~m:Qflow,@:m:Qflow,@:[m:Qflow
+# #.## # $N,@:~m:U,@:m:U,@:[m:U
+# #.## # $N,@:~m:dumax,@:m:dumax,@:[m:dumax

@@ -1,0 +1,4 @@
+$C ---- Format für XXXXXXXXXXXXX ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C

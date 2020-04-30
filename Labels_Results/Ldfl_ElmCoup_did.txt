@@ -1,0 +1,19 @@
+$C ---- Format für LS/TR-Schalter ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+$C Parameter: Elementname
+# $N,@:e:loc_name
+$C Referenz-Parameter: Typ - Beschreibung: KKS-Name
+# $N,@:t:chr_name
+$C Referenz-Parameter: Typ - Beschreibung
+$LOOP,_STR(t:desc)
+# $N,@:_STRING(-1)
+$END
+#=#.## # $R,_IF(e:on_off=1),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
+# #.# # $R,_IF(e:on_off=1),@:~c:loading,@:c:loading,@:[c:loading

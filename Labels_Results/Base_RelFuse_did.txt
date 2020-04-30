@@ -1,0 +1,7 @@
+$C ---- Format für Sicherung ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+# $N,@:e:loc_name
+# # $N,_IF(e:outserv=1),@:r:typ_id:e:loc_name,@:{G|Res.}
+# $N,_IFNOT(e:outserv=1),@:r:typ_id:e:loc_name

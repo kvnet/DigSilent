@@ -1,0 +1,6 @@
+$C ---- Format für Externes Netz ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+#$N,@:e:loc_name
+$FOREACH(e:desc,"# $N,@:e:desc")

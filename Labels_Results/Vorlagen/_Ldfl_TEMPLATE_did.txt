@@ -1,0 +1,9 @@
+$C ---- Format für XXXXXXXXXXXX ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C

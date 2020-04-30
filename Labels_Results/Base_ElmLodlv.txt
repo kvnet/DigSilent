@@ -1,0 +1,8 @@
+$C ---- Format für Niederspannungslast ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+# $N,@:e:loc_name
+# x # $N,_IF(e:NrCust>1),@:e:NrCust,@:r:typ_id:e:desc
+# $N,_IF(e:NrCust=1),@:r:typ_id:e:desc
+$FOREACH(e:desc,"# $N,@:e:desc")
