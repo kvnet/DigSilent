@@ -7,6 +7,14 @@ $C Fehlerart: 1-phasiger Kurzschluss
 $C Berechne: Min.Kurzschlussströme
 $C
 # $N,@:e:loc_name
-# x # $N,_IF(e:NrCust>1),@:e:NrCust,@:r:typ_id:e:desc
-# $N,_IF(e:NrCust=1),@:r:typ_id:e:desc
-$FOREACH(e:desc,"# $N,@:e:desc")
+$C Ausgabe der Beschreibung des Elements
+$LOOP,_STR(e:desc)
+# $N,@:_STRING(-1)
+$END
+$C Ausgabe der Beschreibung des Element-Typs inkl. Anzahl Wohneinheiten
+$C (wird nicht ausgegeben, wenn Teillasten vorhanden sind oder keine
+$C Beschreibung im Element-Typ angegeben ist)
+$LOOP,_STR(r:typ_id:e:desc)
+#x # $N,_FIRST,@:e:NrCust,@:_STRING(-1)
+# $N,_NFIRST,@:_STRING(-1)
+$END

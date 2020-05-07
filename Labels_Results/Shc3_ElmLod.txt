@@ -7,4 +7,6 @@ $C Fehlerart: 3-phasiger Kurzschluss
 $C Berechne: Max.Kurzschlussströme
 $C
 # $N,@:e:loc_name
-$FOREACH(e:desc,"# $N,@:e:desc")
+$LOOP,_STR(e:desc)
+# $N,@:_STRING(-1)
+$END

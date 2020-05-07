@@ -11,5 +11,7 @@ $C
 #=#.### # $R,_IFNOT(e:outserv=1),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
 #=#.### # $R,_IFNOT(e:outserv=1),@:~m:P:_LOCALBUS,@:m:P:_LOCALBUS,@:[m:P:_LOCALBUS
 cos phi=#.## $R,_IFNOT(e:outserv=1),@:m:cosphisum:_LOCALBUS
-$FOREACH(e:desc,"# $N,@:e:desc")
+$LOOP,-STR(e:desc)
+# $N,@STRING(-1)
+$END
 g = #.## $C,@:e:scale0

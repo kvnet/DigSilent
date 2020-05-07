@@ -1,0 +1,14 @@
+$C ---- Format für 2-Wicklungstranmsformator ----
+$C
+$C Kurzschlussberechnung:
+$C Methode: VDE 0102 Teil 0 / DIN EN 60909-0
+$C Ausgabe: 2016
+$C Fehlerart: 1-phasiger Kurzschluss
+$C Berechne: Min.Kurzschlussströme
+$C
+# $N,@:e:loc_name
+#.### # $N,@:t:strn,@:[t:strn
+#.## / #.## # $N,@:t:utrn_h,@:t:utrn_l,@:[t:utrn_l
+uk=#.## # $N,@:t:uktr,@:[t:uktr
+# # $N,@:t:vecgrp,@:[t:vecgrp
+$FOREACH(e:desc,"# $N,@:e:desc")
