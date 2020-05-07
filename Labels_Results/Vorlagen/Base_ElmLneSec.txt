@@ -1,0 +1,17 @@
+$C ---- Format für Leitungssektionen ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+$C: QUELLE: https://www.digsilent.de/en/faq-reader-powerfactory/how-to-show-the-sections-of-a-line-in-the-description-box/searchfaq/result%20boxes.html
+$C
+#$N,@:e:loc_name
+$LOOP,_LSEC
+Sections: $N,_FIRST
+# #.## #$N,@:e:loc_name,@:dline,@:[dline
+$END
+$C
+$C Line 1: Output of element name
+$C Line 2: Start of loop over all line sections
+$C Line 3: Text "Sections" will only be printed out in the first iteration
+$C Line 4: Description of names and lengths (incl. units) of sections
+$C Line 5: End of loop
