@@ -2,9 +2,8 @@ $C ---- Format für Leitung ----
 $C
 $C Keine Berechnung / Allgemeine Daten
 $C
-# $N,@:e:loc_name
-# x ( # ) $N,_IF(e:nlnum>1),@:e:nlnum,@:t:loc_name
-# $N,_IF(e:nlnum=1),@:t:loc_name
+# $N,_IFNOT(e:outserv=1),@:e:loc_name
+#x ( # ) $N,_IFNOT(e:outserv=1),@:e:nlnum,@:t:loc_name
 $FOREACH(e:desc,"# $N,@:e:desc")
 Länge: #.# # $N,_IFNOT(e:outserv=1),@:e:dline,@:[e:dline
 $C RF=Reduktionsfaktor, VA=Verlegeart
