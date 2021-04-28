@@ -1,7 +1,7 @@
 $C ---- Format für Sicherung ----
 $C
 $C Lastflussberechnung:
-$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C Berechnungsmethode: AC Lastfluss, unsymetrisch, 3-Phasen (L1-L2-L3)
 $C
 $C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
 $C

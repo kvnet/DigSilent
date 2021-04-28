@@ -7,6 +7,7 @@ $C Fehlerart: 3-phasiger Kurzschluss
 $C Berechne: Max.Kurzschlussströme
 $C
 # $N,@:e:cStatName
-# #.## # $C,@:~m:Skss,@:m:Skss,@:[m:Skss
-Ik 3p max. #.## # $C,_IFNOT(e:outserv=1),@:m:Ikss,@:[m:Ikss
-# #.## # $C,@:~m:ip,@:m:ip,@:[m:ip
+$FOREACH(e:desc,"# $N,@:e:desc")
+$LOOP,_STR(t:desc)
+# $N,@:_STRING(-1)
+$END

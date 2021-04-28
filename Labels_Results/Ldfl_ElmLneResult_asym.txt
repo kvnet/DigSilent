@@ -9,5 +9,5 @@ $C Last-Option: Lastskalierung an definierten Abgängen
 $C
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:P:_LOCALBUS,@:m:P:_LOCALBUS,@:[m:P:_LOCALBUS
-#=#.## # $R,_IFNOT(e:outserv=1),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
+I=#.## # $R,_IFNOT(e:outserv=1),@:m:Imax:_LOCALBUS,@:[m:Imax:_LOCALBUS
 cos phi=#.## $R,_IFNOT(e:outserv=1),@:m:cosphisum:_LOCALBUS
