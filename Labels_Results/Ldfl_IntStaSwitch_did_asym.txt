@@ -14,5 +14,7 @@ $C
 $LOOP,_STR(t:desc)
 # $N,@:_STRING(-1)
 $END     
-#=#.## # $R,_IF(e:on_off=1),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
+#=#.## # $N,_IF(m:I:_LOCALBUS:A>0.01),@:~m:I:_LOCALBUS:A,@:m:I:_LOCALBUS:A,@:[m:I:_LOCALBUS:A
+#=#.## # $N,_IF(m:I:_LOCALBUS:B>0.01),@:~m:I:_LOCALBUS:B,@:m:I:_LOCALBUS:B,@:[m:I:_LOCALBUS:B
+#=#.## # $N,_IF(m:I:_LOCALBUS:C>0.01),@:~m:I:_LOCALBUS:C,@:m:I:_LOCALBUS:C,@:[m:I:_LOCALBUS:C
 # #.# # $R,_IF(e:on_off=1),@:~c:loading,@:c:loading,@:[c:loading
