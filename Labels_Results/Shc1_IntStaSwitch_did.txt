@@ -6,7 +6,7 @@ $C Ausgabe: 2016
 $C Fehlerart: 1-phasiger Kurzschluss
 $C Berechne: Min.Kurzschlussströme
 $C
-$C ### Info: Feldname als BMK -> BMK wird angezeigt ###
+$C ### Info: Knoten-Feldname als BMK -> BMK wird angezeigt ###
 $C
 # $C,@:r:fold_id:e:loc_name
 # $N,@:t:chr_name

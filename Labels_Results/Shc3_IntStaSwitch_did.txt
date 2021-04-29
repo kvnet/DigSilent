@@ -6,7 +6,7 @@ $C Ausgabe: 2016
 $C Fehlerart: 3-phasiger Kurzschluss
 $C Berechne: Max.Kurzschlussströme
 $C
-$C ### Info: Feldname als BMK -> BMK wird angezeigt ###
+$C ### Info: Knoten-Feldname als BMK -> BMK wird angezeigt ###
 $C
 # $N,@:r:fold_id:e:loc_name
 # $N,@:t:chr_name
