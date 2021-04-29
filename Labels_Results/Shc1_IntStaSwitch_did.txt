@@ -8,7 +8,7 @@ $C Berechne: Min.Kurzschlussströme
 $C
 $C ### Info: Knoten-Feldname als BMK -> BMK wird angezeigt ###
 $C
-# $C,@:r:fold_id:e:loc_name
+# $N,@:r:fold_id:e:loc_name
 # $N,@:t:chr_name
 $LOOP,_STR(t:desc)
 # $N,@:_STRING(-1)
