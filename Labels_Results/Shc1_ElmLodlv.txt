@@ -8,9 +8,7 @@ $C Berechne: Min.Kurzschlussströme
 $C
 # $N,@:e:loc_name
 $C Ausgabe der Beschreibung des Elements
-$LOOP,_STR(e:desc)
-# $N,@:_STRING(-1)
-$END
+$FOREACH(e:desc,"# $N,@:e:desc")
 $C Ausgabe der Beschreibung des Element-Typs inkl. Anzahl Wohneinheiten
 $C (wird nicht ausgegeben, wenn Teillasten vorhanden sind oder keine
 $C Beschreibung im Element-Typ angegeben ist)
