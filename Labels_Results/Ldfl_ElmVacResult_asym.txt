@@ -1,0 +1,14 @@
+$C ---- Format für Externes Netz ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, unsymetrisch, 3-Phasen (L1-L2-L3)
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Ssum:_LOCALBUS,@:m:Ssum:_LOCALBUS,@:[m:Ssum:_LOCALBUS
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Psum:_LOCALBUS,@:m:Psum:_LOCALBUS,@:[m:Psum:_LOCALBUS
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Qsum:_LOCALBUS,@:m:Qsum:_LOCALBUS,@:[m:Qsum:_LOCALBUS
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Imax:_LOCALBUS,@:m:Imax:_LOCALBUS,@:[m:Imax:_LOCALBUS
+cos phi=#.## $N,_IFNOT(e:outserv=1),@:m:cosphisum:_LOCALBUS
