@@ -3,6 +3,5 @@ $C
 $C Keine Berechnung / Allgemeine Daten
 $C
 # $N,@:e:loc_name
-$LOOP,_STR(e:desc)
-# $N,@:_STRING(-1)
-$END
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")
