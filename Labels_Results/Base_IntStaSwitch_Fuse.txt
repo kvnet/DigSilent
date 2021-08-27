@@ -1,0 +1,12 @@
+$C ---- Format für Schalter als Sicherung ----
+$C
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+$C ### Info: Feldname als BMK -> BMK wird angezeigt ###
+$C
+# $N,@:e:loc_name
+# $N,@:t:loc_name
+$LOOP,_STR(e:desc)
+# $N,@:_STRING(-1)
+$END
