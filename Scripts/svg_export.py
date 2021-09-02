@@ -10,8 +10,9 @@ script = app.GetCurrentScript() # Aktives Powerfactory-Skript-Objekt
 # KLASSEN
 class ExportFile:
 
-        def  __init__(self, page, path, prefix, filesuffix, datesuffix, filetype):
+        def  __init__(self, page, pgnumber, path, prefix, filesuffix, datesuffix, filetype):
                 self.page = page # Page-Objekt von Powerfactory
+                self.pagenumber = pgnumber
                 self.path = path # ExportPath-Eingabe des Skripts
                 self.prefix = prefix
                 self.filesuffix = filesuffix
@@ -20,8 +21,8 @@ class ExportFile:
 
         # Funktion zur Erstellung des Dateinamens ohne Erweiterung
         def GetFileName(self):
-                # Seitennummer aus dem Fremdschlüssel (for_name) des Diagramms (pGrph) des Page-Objektes auslesen
-                __pagenumber = str(page.pGrph.for_name)
+                # Seitennummer aus dem KKS-Namen (chr_name) des Diagramms (pGrph) des Page-Objektes auslesen
+                __pagenumber = str(self.pagenumber)
                 if (__pagenumber != ''):
                         __pagenumber = __pagenumber + '_'
                 else:
@@ -82,7 +83,7 @@ def CheckScriptDateSuffix(intDatesuffix):
 def SetDateSuffix(intDatesuffix):
         if (intDatesuffix == 1):
                 exportdate = dt.datetime.now()
-                return exportdate.strftime('%Y%m%d')
+                return '_' + exportdate.strftime('%Y%m%d')
         return ''
 
 
@@ -153,7 +154,10 @@ pages = desktop.GetContents()
 # an Klasse 'ExportFile' übergeben und selbige in einer Liste
 # zwischenspeichern 
 for page in pages:
-        ef = ExportFile(page, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
+        pg = page
+        diag = pg.pGrph
+        kks = diag.chr_name
+        ef = ExportFile(page, kks, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
         files.append(ef)
 
 exportssuccess = 0
@@ -199,9 +203,3 @@ if exportsfailure > 0:
 else:
         app.PrintInfo("Erfolgreiche Exporte: " + str(exportssuccess) + \
                 ", Fehlgeschlagene Exporte: " + str(exportsfailure))
-
-
-
-
-
-
