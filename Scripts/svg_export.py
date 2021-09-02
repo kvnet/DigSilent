@@ -20,8 +20,15 @@ class ExportFile:
 
         # Funktion zur Erstellung des Dateinamens ohne Erweiterung
         def GetFileName(self):
+                # Seitennummer aus dem Fremdschlüssel (for_name) des Diagramms (pGrph) des Page-Objektes auslesen
+                __pagenumber = str(page.pGrph.for_name)
+                if (__pagenumber != ''):
+                        __pagenumber = __pagenumber + '_'
+                else:
+                         __pagenumber = ''
+
                 return self.prefix + '_' + \
-                        self.page.loc_name +  \
+                        __pagenumber + self.page.loc_name +  \
                         self.filesuffix + \
                         self.datesuffix + \
                         '.' + self.filetype            
