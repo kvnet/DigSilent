@@ -1,0 +1,7 @@
+$C ---- Format für Allgemeine Last ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+# $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")

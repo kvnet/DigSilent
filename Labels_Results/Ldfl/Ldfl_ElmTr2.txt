@@ -1,0 +1,15 @@
+$C ---- Format für 2-Wicklungstranmsformator ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+# $N,@:e:loc_name
+#.### # $N,@:t:strn,@:[t:strn
+#.## / #.## # $N,@:t:utrn_h,@:t:utrn_l,@:[t:utrn_l
+uk=#.## # $N,@:t:uktr,@:[t:uktr
+# # $N,@:t:vecgrp,@:[t:vecgrp
+$FOREACH(e:desc,"# $N,@:e:desc")

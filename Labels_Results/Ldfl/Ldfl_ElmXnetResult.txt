@@ -1,0 +1,13 @@
+$C ---- Format für Externes Netz ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Ssum:bus1,@:m:Ssum:bus1,@:[m:Ssum:bus1
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Psum:bus1,@:m:Psum:bus1,@:[m:Psum:bus1
+# #.## # $N,_IFNOT(e:outserv=1),@:~m:Qsum:bus1,@:m:Qsum:bus1,@:[m:Qsum:bus1
+cos phi=#.### $N,_IFNOT(e:outserv=1),@:m:cosphisum:bus1

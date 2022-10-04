@@ -1,0 +1,6 @@
+$C ---- Format für 2-Wicklungstranmsformator Zusätzliche Textbox ----
+$C ------- als Querverweis auf hochspannungsseitige Grafik -------
+$C
+$C Anwenden für alle Berechnungsarten
+$C
+siehe Netzgrafik # $N,@:r:buslv:r:cBusBar:r:fold_id:r:pDiagram:e:loc_name

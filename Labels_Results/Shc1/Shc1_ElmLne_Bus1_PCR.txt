@@ -1,0 +1,7 @@
+$C ---- Format für Leitung Zusätzliche Textbox ----
+$C ------- als Querverweis auf andere Grafik -------
+$C
+$C Anwenden für alle Berechnungsarten
+$C
+Anschluss an # $N,@:r:bus1:r:cterm:e:loc_name
+siehe Netzgrafik # $N,@:r:bus1:r:cterm:r:fold_id:r:pDiagram:e:loc_name

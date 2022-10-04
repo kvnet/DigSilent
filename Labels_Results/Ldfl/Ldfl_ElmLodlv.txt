@@ -1,0 +1,23 @@
+$C ---- Format für Niederspannungslast ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+# $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")
+$C Ausgabe der Beschreibung des Element-Typs inkl. Anzahl Wohneinheiten
+$C (wird nicht ausgegeben, wenn Teillasten vorhanden sind oder keine
+$C Beschreibung im Element-Typ angegeben ist)
+$LOOP,_STR(r:typ_id:e:desc)
+#x # $N,_FIRST,@:e:NrCust,@:_STRING(-1)
+# $N,_NFIRST,@:_STRING(-1)
+$END
+#=#.### # $R,_IFNOT(e:outserv=1),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
+#=#.### # $R,_IFNOT(e:outserv=1),@:~m:P:_LOCALBUS,@:m:P:_LOCALBUS,@:[m:P:_LOCALBUS
+cos phi=#.## $R,_IFNOT(e:outserv=1),@:m:cosphisum:_LOCALBUS
+g = #.## $C,@:e:UtilFactor

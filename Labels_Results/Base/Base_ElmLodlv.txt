@@ -1,0 +1,14 @@
+$C ---- Format für Niederspannungslast ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+# $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")
+$C Ausgabe der Beschreibung des Element-Typs inkl. Anzahl Wohneinheiten
+$C (wird nicht ausgegeben, wenn Teillasten vorhanden sind oder keine
+$C Beschreibung im Element-Typ angegeben ist)
+$LOOP,_STR(r:typ_id:e:desc)
+#x # $N,_FIRST,@:e:NrCust,@:_STRING(-1)
+# $N,_NFIRST,@:_STRING(-1)
+$END

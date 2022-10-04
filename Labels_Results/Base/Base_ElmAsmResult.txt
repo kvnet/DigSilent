@@ -1,0 +1,5 @@
+$C ---- Format für Asynchronmotor Ergebnisbox ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+# $N,@:e:loc_name

@@ -1,0 +1,17 @@
+$C ---- Format für Asynchronmotor ----
+$C
+$C Lastflussberechnung:
+$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C
+$C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
+$C
+$C Last-Option: Lastskalierung an definierten Abgängen
+$C
+# $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")
+Pme #.# # $N,@:t:pgn,@:[t:pgn
+eta=#.# # $N,@:t:effic,@:[t:effic
+cos phi=#.## # $N,@:t:cosn,@:[t:cosn
+n=#.## U/min $N,@:t:anend
+Polpaarzahl=# $N,@:t:nppol
