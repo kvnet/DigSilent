@@ -3,7 +3,9 @@ $C
 $C Keine Berechnung / Allgemeine Daten
 $C
 # $N,@:e:cStatName
+$C Anzeige der Beschreibung des Elementes
 $FOREACH(e:desc,"# $N,@:e:desc")
+$C Anzeige der Beschreibung des Element-Typs
 $LOOP,_STR(t:desc)
 # $N,@:_STRING(-1)
 $END
