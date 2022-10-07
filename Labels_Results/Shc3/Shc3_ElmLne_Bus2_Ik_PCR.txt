@@ -1,0 +1,12 @@
+$C ---- Format für Leitung Zusätzliche Textbox ----
+$C ------- als Querverweis auf andere Grafik -------
+$C
+$C Kurzschlussberechnung:
+$C Methode: VDE 0102 Teil 0 / DIN EN 60909-0
+$C Ausgabe: 2016
+$C Fehlerart: 3-phasiger Kurzschluss
+$C Berechne: Max.Kurzschlussströme
+$C
+Anschluss an # $N,@:r:bus2:r:cterm:e:loc_name
+Ik 3p max. ##.## # $N,_LCOL(c),_IFNOT(r:bus2:r:cterm:e:outserv=1),@:r:bus2:r:cterm:m:Ikss,@:[r:bus2:r:cterm:m:Ikss
+(siehe Netzgrafik #) $N,@:r:bus2:r:cterm:r:fold_id:r:pDiagram:e:loc_name
