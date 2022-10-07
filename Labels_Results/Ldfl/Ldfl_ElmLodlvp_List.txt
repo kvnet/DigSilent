@@ -1,0 +1,8 @@
+$C ---- Auflistung der Teillasten ----
+$C Eintrag des auszuführenden Skriptes unter "DPL Skript"
+$C auszuführenden Skriptes muss sich unter
+$C "Einstellungen/Formats/Dpl" befinden
+$C
+$LOOP,_STR(DPL:e:ResultStr)
+  # $N,@:_STRING(-1)
+$END
