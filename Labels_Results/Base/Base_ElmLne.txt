@@ -4,6 +4,7 @@ $C Keine Berechnung / Allgemeine Daten
 $C
 # $N,@:e:loc_name
 $C Schleife über Leitungssektionen und Darstellung derselbigen
+$C Quelle: https://www.digsilent.de/en/faq-reader-powerfactory/how-to-show-the-sections-of-a-line-in-the-description-box.html
 $LOOP,_LSEC
 # | # | #.## # $N,@:e:loc_name,@:t:loc_name,@:dline,@:[dline
 $END
