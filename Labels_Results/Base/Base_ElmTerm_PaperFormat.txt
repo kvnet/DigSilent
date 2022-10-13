@@ -1,0 +1,5 @@
+$C ---- Format für Klemmleiste 'Papierformat' ----
+$C
+$C Keine Berechnung / Allgemeine Daten
+$C
+#: #.#x#.# $N,@:e:cStatName,@:r:cpGrid:r:pDiagram:e:rRTopXc,@:r:cpGrid:r:pDiagram:e:rRTopYc
