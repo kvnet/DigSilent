@@ -16,3 +16,6 @@ $LOOP,_STR(r:typ_id:e:desc)
 #x # $N,_FIRST,@:e:NrCust,@:_STRING(-1)
 # $N,_NFIRST,@:_STRING(-1)
 $END
+#=#.## #, g=#.# $N,_IFNOT(r:typ_id:e:Smax=0),@:~r:typ_id:e:Smax,@:r:typ_id:e:Smax,@:[r:typ_id:e:Smax,@:r:typ_id:e:ginf
+#x Versch. Lasttypen $N,_IF(e:cHasPartLod<>0),@:e:NrCust
+Smax=#.## # $N,_IF(e:cHasPartLod<>0),@:e:cSmax,@:[e:cSmax

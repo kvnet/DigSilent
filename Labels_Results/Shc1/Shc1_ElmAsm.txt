@@ -9,8 +9,8 @@ $C
 $C # $N,@:e:loc_name
 $C Ausgabe der Beschreibung des Elements
 $FOREACH(e:desc,"# $N,@:e:desc")
-Pme #.# # $N,@:t:pgn,@:[t:pgn
-eta=#.# # $N,@:t:effic,@:[t:effic
-cos phi=#.## # $N,@:t:cosn,@:[t:cosn
-n=#.## U/min $N,@:t:anend
-Polpaarzahl=# $N,@:t:nppol
+Pme #.# # $N,_IFNOT(e:outserv=1),@:t:pgn,@:[t:pgn
+eta=#.# # $N,_IFNOT(e:outserv=1),@:t:effic,@:[t:effic
+cos phi=#.## # $N,_IFNOT(e:outserv=1),@:t:cosn,@:[t:cosn
+n=#.## U/min $N,_IFNOT(e:outserv=1),@:t:anend
+Polpaarzahl=# $N,_IFNOT(e:outserv=1),@:t:nppol
