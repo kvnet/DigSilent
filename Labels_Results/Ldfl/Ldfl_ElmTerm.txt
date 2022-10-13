@@ -10,6 +10,7 @@ $C
 # $N,@:e:cStatName
 $FOREACH(e:desc,"# $N,@:e:desc")
 # #.## # $N,_IFNOT(e:outserv=1),@:~m:Pflow,@:m:Pflow,@:[m:Pflow
-# #.## # $N,_IFNOT(e:outserv=1),@:~m:Qflow,@:m:Qflow,@:[m:Qflow
+# #.## # $C,_IFNOT(e:outserv=1),@:~m:Qflow,@:m:Qflow,@:[m:Qflow
+cos phi #.## $N,@:m:cosphiout
 # #.## # $N,_IFNOT(e:outserv=1),@:~m:Ul,@:m:Ul,@:[m:Ul
 # #.## # $N,_IFNOT(e:outserv=1),@:~m:dumax,@:m:dumax,@:[m:dumax
