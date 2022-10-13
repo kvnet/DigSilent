@@ -1,0 +1,16 @@
+$C ---- Format für Asynchronmotor ----
+$C
+$C Kurzschlussberechnung:
+$C Methode: VDE 0102 Teil 0 / DIN EN 60909-0
+$C Ausgabe: 2016
+$C Fehlerart: 3-phasiger Kurzschluss
+$C Berechne: Max.Kurzschlussströme
+$C
+$C # $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")
+Pme #.# # $N,@:t:pgn,@:[t:pgn
+eta=#.# # $N,@:t:effic,@:[t:effic
+cos phi=#.## # $N,@:t:cosn,@:[t:cosn
+n=#.## U/min $N,@:t:anend
+Polpaarzahl=# $N,@:t:nppol
