@@ -3,3 +3,5 @@ $C
 $C Keine Berechnung / Allgemeine Daten
 $C
 # $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Element-Typs
+$FOREACH(t:desc,"# $N,@:t:desc")

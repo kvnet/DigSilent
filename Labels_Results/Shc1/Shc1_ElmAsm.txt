@@ -7,8 +7,8 @@ $C Fehlerart: 1-phasiger Kurzschluss
 $C Berechne: Min.Kurzschlussströme
 $C
 $C # $N,@:e:loc_name
-$C Ausgabe der Beschreibung des Elements
-$FOREACH(e:desc,"# $N,@:e:desc")
+$C Ausgabe der Beschreibung des Element-Typs
+$FOREACH(t:desc,"# $N,@:t:desc")
 Pme #.# # $N,_IFNOT(e:outserv=1),@:t:pgn,@:[t:pgn
 eta=#.# # $N,_IFNOT(e:outserv=1),@:t:effic,@:[t:effic
 cos phi=#.## # $N,_IFNOT(e:outserv=1),@:t:cosn,@:[t:cosn

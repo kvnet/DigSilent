@@ -8,6 +8,8 @@ $C
 $C Last-Option: Lastskalierung an definierten Abgängen
 $C
 # $N,@:e:loc_name
+$C Ausgabe der Beschreibung des Elements
+$FOREACH(e:desc,"# $N,@:e:desc")
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:P:_LOCALBUS,@:m:P:_LOCALBUS,@:[m:P:_LOCALBUS
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
