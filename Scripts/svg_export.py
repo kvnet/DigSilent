@@ -12,11 +12,11 @@ app = powerfactory.GetApplication() # Application-Objekt
 script = app.GetCurrentScript() # Aktives Powerfactory-Skript-Objekt
 
 # KLASSEN
-class ExportFile:
+class ExportFileData:
 
         def  __init__(self, page, pgnumber, path, prefix, filesuffix, datesuffix, filetype):
-                self.page = page # Page-Objekt von Powerfactory
-                self.pagenumber = pgnumber
+                self.page = page # Page-Objekt (*.SetDeskpage) der Grafiksammlung von Powerfactory
+                self.pagenumber = str(pgnumber).zfill(3) # Reihenfolge-Nr des Page-Objektes der Grafiksammlung
                 self.path = path # ExportPath-Eingabe des Skripts
                 self.prefix = prefix
                 self.filesuffix = filesuffix
@@ -25,7 +25,8 @@ class ExportFile:
 
         # Funktion zur Erstellung des Dateinamens ohne Erweiterung
         def GetFileName(self):
-                # Seitennummer aus dem KKS-Namen (chr_name) des Diagramms (pGrph) des Page-Objektes auslesen
+                # Seitennummer gem. der Reihenfolgennummerierung (order) der Grafiksammlung
+                # 3-Stellig mit führenden Nullen
                 __pagenumber = str(self.pagenumber)
                 if (__pagenumber != ''):
                         __pagenumber = __pagenumber + '_'
@@ -150,28 +151,30 @@ if not (desktop):
 pages = desktop.GetContents()
 
 # Alle in der Grafiksammlung vorhandenen Netzgrafiken (*.SetDeskpage) durchlaufen,
-# an Klasse 'ExportFile' übergeben und selbige in einer Liste
+# an Klasse 'ExportFileData' übergeben und selbige in einer Liste
 # zwischenspeichern 
 for page in pages: 
-        #Überprüfen, ob es sich um ein 'SetDeskpage'-Objekt handelt
+        # Überprüfen, ob es sich um ein 'SetDeskpage'-Objekt handelt und
+        # die Eigenschaft 'Seite wiederverwerten' Wahr ist
         strObj = page.GetClassName()
-        if (strObj == 'SetDeskpage'):
+        if (strObj == 'SetDeskpage' and page.iRecycl == True):
                 diag = page.pGrph
-                kks = diag.chr_name
-                ef = ExportFile(page, kks, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
-                files.append(ef)
+                pagenr = page.order
+                efd = ExportFileData(page, pagenr, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
+
+                files.append(efd)
 
 exportssuccess = 0
 exportsfailure = 0
-for file in files:
-        p = file.page
+for filedata in files:
+        p = filedata.page #page-Objekt aus der Klasse auslesen
         pn = p.GetAttribute('loc_name') # oder auch nur page.loc_name falls Attribut bekannt
-        fn = file.GetFullFileName()
+        fn = filedata.GetFullFileName()
 
         app.PrintPlain('Exportiere Grafik ' + pn)
 
-        if file.FileExists() == True:
-                if file.delete_file() == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
+        if filedata.FileExists() == True:
+                if filedata.delete_file() == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
                         exportsfailure += 1
 
         
