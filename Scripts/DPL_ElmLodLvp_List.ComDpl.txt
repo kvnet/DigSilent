@@ -1,0 +1,59 @@
+int     iNrCust, iCounter;
+double  dActPowCust, dPfCust, dUtilFactor;
+double  dTypLodSmax, dTypLodPmax, dTypPf;
+double  dRefOrder;
+string  strLodLvp, strTotal, strLodName, strLodTyp;
+object  oLodLv, oMyObj, oMyRefObj;
+set     sLodLvs, sMySet;
+
+
+!******** EINFÜGEN IN DIE ERGEBNISBOX ********
+
+! $LOOP,_STR(DPL:e:ResultStr)
+! # $N,@:_STRING(-1)
+! $END
+
+!*********************************************
+
+!Alle referenzierten (verknüpften) Objekte innerhalb dieses Skriptes
+!in ein Set laden
+sMySet = this.GetContents('*.IntRef', 1);
+!Erstes Objekt mit der Reihenfolge Nr.0 ermitteln aus dem Sets ermitteln
+oMyRefObj = sMySet.First();
+!Referenziertes Objekt aus der Verknüpfung ermitteln
+oMyObj = oMyRefObj:obj_id;
+
+if(oMyObj:cHasPartLod = 1){
+  iCounter = 0;
+
+  sLodLvs = oMyObj.GetChildren(0,'*.ElmLodLvp');
+  strTotal = '';
+
+  for(oLodLv = sLodLvs.First();oLodLv;oLodLv = sLodLvs.Next()){
+    
+    strLodName = oLodLv:e:loc_name; !Elementname
+    strLodTyp= oLodLv:r:typ_id:e:loc_name; !Elementtyp
+    iNrCust = oLodLv:e:NrCust; !Anzahl Verbraucher
+    dActPowCust = oLodLv:e:cPrCust; !Last pro Verbraucher
+    dPfCust = oLodLv:e:ccosphi; !Leistungsfaktor
+    dUtilFactor = oLodLv:e:UtilFactor; !Gleichzeitigkeitsfaktor
+    dTypLodSmax = oLodLv:r:typ_id:e:Smax; !max. Scheinleistung des Lasttyps
+    dTypPf = oLodLv:r:typ_id:e:cosphi; !Leistungsfaktor des Lasttyps
+    
+    !max. Wirkleistung des Lasttyps errechnen
+    dTypLodPmax = dTypLodSmax / dTypPf;
+    strLodLvp = sprintf('%i x %s (%s)',iNrCust,strLodTyp,strLodName);
+    if(iCounter = 0){
+      !strLodLvp = sprintf('%i x %s (%s)',iNrCust,strLodTyp,strLodName);
+    }
+    else{
+    strLodLvp = sprintf('\n%s',strLodLvp);
+    }
+    
+    !Strings zusammenfassen
+    strTotal =  sprintf('%s%s',strTotal,strLodLvp);
+    iCounter = iCounter + 1;
+  }
+  !Rückgabe des Strings
+  this.SetResultString(strTotal);
+}
