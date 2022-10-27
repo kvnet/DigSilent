@@ -1,4 +1,8 @@
-﻿import powerfactory # Importieren des DigSilent Powerfactory Moduls
+# DigSilent Version 2019
+# Python (!!!) Version 3.7 (!!!) muss installiert sein
+# Copyright 2019 Christian Vavru
+
+import powerfactory # Importieren des DigSilent Powerfactory Moduls
 import os
 import datetime as dt
 import time
@@ -53,12 +57,12 @@ class ExportFile:
 
 # FUNKTIONEN / DEFINITITIONEN
 def CheckExportPath(strPath):
-        # Wenn angegebener appad ungültig oder nicht vorhanden ist, ...
+        # Wenn angegebener Pfad ungültig oder nicht vorhanden ist, ...
         if os.path.exists(strPath) == False or strPath == '':
                 # Leeren String zurück geben
                 return ''
         else:
-                # übergebenen appad als String zurück geben
+                # übergebenen Pfad als String zurück geben
                 return strPath
 
 
@@ -87,13 +91,6 @@ def SetDateSuffix(intDatesuffix):
         return ''
 
 
-def SetFileSuffixText(strFilesuffix):
-        # Wenn der DateiSuffix nicht leer ist
-        if (strFilesuffix != ''):
-                return '_' + strFilesuffix
-        return ''
-
-
 prefixtuple = ('Base', 'Ldfl', 'Shc3', 'Shc1') # Tuple-Collection der Präfixe
 
 exportfiletype = 'svg' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
@@ -105,13 +102,13 @@ errormsgs = [] # Leere Liste für Fehlermeldungen erstellen
 # app.ClearOutputWindow()
 
 # Informationsausgabe
-strInfoHeader = " STARTE PDF-EXPORT: "
+strInfoHeader = " STARTE SVG-EXPORT: "
 app.PrintInfo(strInfoHeader.center(50, "#"))
 
 
 # ---> "############### STARTE SVG-EXPORT: ###############"
 
-# 1.) Überprüfen ob der im Skript angegebene appad existiert
+# 1.) Überprüfen ob der im Skript angegebene Pfad existiert
 exportpath = CheckExportPath(str(script.ExportPath))
 if exportpath == '':
         errormsgs.append('Fehlender oder falscher Exportpfad! Skript-Abbruch!')
@@ -130,7 +127,9 @@ checkdatesuffix = CheckScriptDateSuffix(int(script.DateSuffix))
 datesuffix = SetDateSuffix(checkdatesuffix)
 
 # 4.) File-Suffix
-filesuffix = SetFileSuffixText(str(script.FileSuffix))
+# ------ für spätere Erweiterung ------
+#filesuffix = SetFileSuffixText(str(script.FileSuffix))
+filesuffix = ''
 
 # 5.)
 # Überprüfen ob Fehlermeldungen in der Liste errormsgs vorhanden sind
@@ -150,15 +149,17 @@ if not (desktop):
 # Inhalt des GraphicsBoard-Objektes in neue Liste 'pages' laden
 pages = desktop.GetContents()
 
-# Alle in der Grafiksammlung vorhandenen Netzgrafiken durchlaufen
+# Alle in der Grafiksammlung vorhandenen Netzgrafiken (*.SetDeskpage) durchlaufen,
 # an Klasse 'ExportFile' übergeben und selbige in einer Liste
 # zwischenspeichern 
-for page in pages:
-        pg = page
-        diag = pg.pGrph
-        kks = diag.chr_name
-        ef = ExportFile(page, kks, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
-        files.append(ef)
+for page in pages: 
+        #Überprüfen, ob es sich um ein 'SetDeskpage'-Objekt handelt
+        strObj = page.GetClassName()
+        if (strObj == 'SetDeskpage'):
+                diag = page.pGrph
+                kks = diag.chr_name
+                ef = ExportFile(page, kks, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
+                files.append(ef)
 
 exportssuccess = 0
 exportsfailure = 0
@@ -179,7 +180,7 @@ for file in files:
                 app.SetGuiUpdateEnabled(1)
 
 
-                # QUELLE: https://www.digsilent.de/en/faq-reader-powerfactory/how-do-i-export-a-currently-shown-plot-using-python.html
+                # QUELLE: https://www.digsilent.de/en/faq-reader-powerfactory/how-do-i-export-a-graphic-using-python.html
                 # Aufruf des CommonWrite-Objektes von Powerfactory
                 comWr = app.GetFromStudyCase('ComWr')
                 comWr.iopt_rd = exportfiletype # z.B.: "bmp" for *.bmp
