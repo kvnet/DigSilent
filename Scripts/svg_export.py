@@ -16,7 +16,7 @@ class ExportFileData:
 
         def  __init__(self, page, pgnumber, path, prefix, filesuffix, datesuffix, filetype):
                 self.page = page # Page-Objekt (*.SetDeskpage) der Grafiksammlung von Powerfactory
-                self.pagenumber = str(pgnumber).zfill(3) # Reihenfolge-Nr des Page-Objektes der Grafiksammlung
+                self.pagenumber = pgnumber # Reihenfolge-Nr des Page-Objektes der Grafiksammlung
                 self.path = path # ExportPath-Eingabe des Skripts
                 self.prefix = prefix
                 self.filesuffix = filesuffix
@@ -25,16 +25,14 @@ class ExportFileData:
 
         # Funktion zur Erstellung des Dateinamens ohne Erweiterung
         def GetFileName(self):
-                # Seitennummer gem. der Reihenfolgennummerierung (order) der Grafiksammlung
-                # 3-Stellig mit führenden Nullen
-                __pagenumber = str(self.pagenumber)
-                if (__pagenumber != ''):
-                        __pagenumber = __pagenumber + '_'
+                __pgnr = self.pagenumber
+                if (__pgnr != ''):
+                        __pgnr = __pgnr + '_'
                 else:
-                         __pagenumber = ''
+                         __pgnr = ''
 
                 return self.prefix + '_' + \
-                        __pagenumber + self.page.loc_name +  \
+                        __pgnr + self.page.loc_name +  \
                         self.filesuffix + \
                         self.datesuffix + \
                         '.' + self.filetype            
@@ -159,9 +157,12 @@ for page in pages:
         strObj = page.GetClassName()
         if (strObj == 'SetDeskpage' and page.iRecycl == True):
                 diag = page.pGrph
-                pagenr = page.order
+                # Seitennummer gem. der Reihenfolgennummerierung (order) der Grafiksammlung
+                # 3-Stellig mit führenden Nullen
+                pagenr = str(int(page.order)).zfill(3) 
+                # Objekterstellung mit Datenübergabe der Klasse 'ExportFileData'
                 efd = ExportFileData(page, pagenr, exportpath, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
-
+                # Speichern der neuen Klasse in der Liste 'files'
                 files.append(efd)
 
 exportssuccess = 0
