@@ -57,12 +57,12 @@ class ExportFile:
 
 # FUNKTIONEN / DEFINITITIONEN
 def CheckExportPath(strPath):
-        # Wenn angegebener appad ungültig oder nicht vorhanden ist, ...
+        # Wenn angegebener Pfad ungültig oder nicht vorhanden ist, ...
         if os.path.exists(strPath) == False or strPath == '':
                 # Leeren String zurück geben
                 return ''
         else:
-                # übergebenen appad als String zurück geben
+                # übergebenen Pfad als String zurück geben
                 return strPath
 
 
@@ -91,11 +91,11 @@ def SetDateSuffix(intDatesuffix):
         return ''
 
 
-def SetFileSuffixText(strFilesuffix):
+#def SetFileSuffixText(strFilesuffix):
         # Wenn der DateiSuffix nicht leer ist
-        if (strFilesuffix != ''):
-                return '_' + strFilesuffix
-        return ''
+#        if (strFilesuffix != ''):
+#                return '_' + strFilesuffix
+#        return ''
 
 
 prefixtuple = ('Base', 'Ldfl', 'Shc3', 'Shc1') # Tuple-Collection der Präfixe
@@ -115,7 +115,7 @@ app.PrintInfo(strInfoHeader.center(50, "#"))
 
 # ---> "############### STARTE SVG-EXPORT: ###############"
 
-# 1.) Überprüfen ob der im Skript angegebene appad existiert
+# 1.) Überprüfen ob der im Skript angegebene Pfad existiert
 exportpath = CheckExportPath(str(script.ExportPath))
 if exportpath == '':
         errormsgs.append('Fehlender oder falscher Exportpfad! Skript-Abbruch!')
@@ -134,7 +134,8 @@ checkdatesuffix = CheckScriptDateSuffix(int(script.DateSuffix))
 datesuffix = SetDateSuffix(checkdatesuffix)
 
 # 4.) File-Suffix
-filesuffix = SetFileSuffixText(str(script.FileSuffix))
+#filesuffix = SetFileSuffixText(str(script.FileSuffix))
+filesuffix = ''
 
 # 5.)
 # Überprüfen ob Fehlermeldungen in der Liste errormsgs vorhanden sind
