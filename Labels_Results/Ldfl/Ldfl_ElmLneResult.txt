@@ -9,5 +9,9 @@ $C Last-Option: Lastskalierung an definierten Abgängen
 $C
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
 #=#.## # $R,_IFNOT(e:outserv=1),@:~m:P:_LOCALBUS,@:m:P:_LOCALBUS,@:[m:P:_LOCALBUS
-#=#.## # $R,_IFNOT(e:outserv=1),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
+# #.## # $N,_IF(t:uknom=0.4),@:~m:Ul,@:m:Ul,@:[m:Ul
+$C Kabeltyp KKS <> 1PH
+#=#.## # $N,_IFNOT(t:chr_name=1PH),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
+$C Kabeltyp KKS = 1PH
+#=3x#.## # $N,_IF(t:chr_name=1PH),@:~m:I:_LOCALBUS,@:m:I:_LOCALBUS,@:[m:I:_LOCALBUS
 cos phi=#.## $R,_IFNOT(e:outserv=1),@:m:cosphisum:_LOCALBUS

@@ -12,5 +12,8 @@ $FOREACH(e:desc,"# $N,@:e:desc")
 # #.## # $N,_IFNOT(e:outserv=1),@:~m:Pflow,@:m:Pflow,@:[m:Pflow
 # #.## # $C,_IFNOT(e:outserv=1),@:~m:Qflow,@:m:Qflow,@:[m:Qflow
 cos phi #.## $N,@:m:cosphiout
-# #.## # $N,_IFNOT(e:outserv=1),@:~m:Ul,@:m:Ul,@:[m:Ul
+$C Nennspannung Sammelschienentyp = 400V
+# #.## # $N,_IF(t:uknom=0.4),@:~m:Ul,@:m:Ul,@:[m:Ul
+$C Nennspannung Sammelschienentyp = 230V
+# #.## # $N,_IF(t:uknom=0.23),@:~m:U:A,@:m:U:A,@:[m:U:A
 # #.## # $N,_IFNOT(e:outserv=1),@:~m:dumax,@:m:dumax,@:[m:dumax
