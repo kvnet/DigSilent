@@ -12,6 +12,6 @@ $C Ausgabe der Beschreibung des Element-Typs
 $FOREACH(t:desc,"# $N,@:t:desc")
 Pme #.# # $N,_IFNOT(e:outserv=1),@:t:pgn,@:[t:pgn
 eta=#.# # $N,_IFNOT(e:outserv=1),@:t:effic,@:[t:effic
-cos phi=#.## # $N,_IFNOT(e:outserv=1),@:t:cosn,@:[t:cosn
+cos phi=#.## $N,_IFNOT(e:outserv=1),@:t:cosn
 n=#.## U/min $N,_IFNOT(e:outserv=1),@:t:anend
 Polpaarzahl=# $N,_IFNOT(e:outserv=1),@:t:nppol

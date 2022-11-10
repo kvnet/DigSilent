@@ -8,12 +8,8 @@ $C
 $C Last-Option: Lastskalierung an definierten Abgängen
 $C
 # $N,@:e:loc_name
-$C Schleife über Leitungssektionen und Darstellung derselbigen
-$LOOP,_LSEC
-# | # | #.## # $N,@:e:loc_name,@:t:loc_name,@:dline,@:[dline
-$END
-# $N,_IFNOT(t:loc_name=''),@:t:loc_name
-$FOREACH(e:desc,"# $N,@:e:desc")
+$FOREACH(e:desc,"# $N,_LCOL(b),@:e:desc")
+#x ( # ) $N,_IFNOT(e:outserv=1),@:e:nlnum,@:t:loc_name
 Länge: #.# # $N,_IFNOT(e:outserv=1),@:e:dline,@:[e:dline
 $C RF=Reduktionsfaktor, VA=Verlegeart
 RF: #.## / VA: in # $N,_IFNOT(e:outserv=1),@:e:fline,@:e:inAir
