@@ -14,8 +14,7 @@ $C Ausgabe der Beschreibung des Element-Typs inkl. Anzahl Wohneinheiten
 $C (wird nicht ausgegeben, wenn Teillasten vorhanden sind oder keine
 $C Beschreibung im Element-Typ angegeben ist)
 $LOOP,_STR(r:typ_id:e:desc)
-#x # $N,_FIRST,@:e:NrCust,@:_STRING(-1)
-# $N,_NFIRST,@:_STRING(-1)
+# $N,@:_STRING(-1)
 $END
 je #=#.## #, #=#.## $C,_IFNOT(r:typ_id:e:Smax=0),@:~r:typ_id:e:Smax,@:r:typ_id:e:Smax,@:[r:typ_id:e:Smax,@:~r:typ_id:e:cosphi,@:r:typ_id:e:cosphi
 #=#.### # $N,_IFNOT(r:typ_id:e:Smax=0),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
