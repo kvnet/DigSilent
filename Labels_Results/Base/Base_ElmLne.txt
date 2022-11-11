@@ -3,13 +3,14 @@ $C
 $C Keine Berechnung / Allgemeine Daten
 $C
 # $N,@:e:loc_name
+$FOREACH(e:desc,"# $N,_LCOL(b),@:e:desc")
 $C Schleife über Leitungssektionen und Darstellung derselbigen
 $C Quelle: https://www.digsilent.de/en/faq-reader-powerfactory/how-to-show-the-sections-of-a-line-in-the-description-box.html
 $LOOP,_LSEC
 # | # | #.## # $N,@:e:loc_name,@:t:loc_name,@:dline,@:[dline
 $END
-# $N,_IFNOT(t:loc_name=''),@:t:loc_name
-$FOREACH(e:desc,"# $N,@:e:desc")
+# x ( # ) $N,_IF(e:nlnum>1),@:e:nlnum,@:t:loc_name
+# $C,_IF(e:nlnum=1),@:t:loc_name
 Länge: #.# # $N,_IFNOT(e:outserv=1),@:e:dline,@:[e:dline
 $C RF=Reduktionsfaktor, VA=Verlegeart
 RF: #.## / VA: in # $N,_IFNOT(e:outserv=1),@:e:fline,@:e:inAir
