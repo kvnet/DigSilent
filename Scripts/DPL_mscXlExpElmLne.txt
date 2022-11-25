@@ -1,0 +1,191 @@
+Eingabeparameter:
+string	template	VORLAGEDATEI.xlsx		
+string	exportpath	PFAD		
+string	exportfile			
+int		usedatesuffix	1		Datum als Dateiendung hinzu (0 oder Leer=Nein, 1=Ja)
+string	classes	*.ElmLne*		
+string	attributes	loc_name,typ_id,bus1,bus2,cpZone,dline,nlnum,fline,inAir,inom,Z1,R1,X1,R0,X0
+
+Skript:
+! -------- VARIABLEN --------
+int     error,
+        pathLenght,
+        sheetIndex,
+        xlrow,
+        xlunitrow,
+        xlcol,
+        pos,
+        compare,
+        result;
+
+string  calcPrefix, filestring, datestring, datesuffix,
+        filename, fullfilename, selectedFolder, descr;
+double  systemtime;
+
+int     ival, lsecs, iscable, iscablesec;
+double  dval;
+string  sval, attribname, attribtype, parent, classname, classattrib,
+        outstring;     
+object  oval, netdatfolder, obj, grid, busbar, oparent;
+set     grids, objs;
+
+! ----------------------------
+
+ClearOutputWindow(); !Inhalt des Ausgabefensters löschen
+
+!Überprüfen ob Vorlagedatei existiert
+error = CheckFileExists(template);
+if (error = 0){
+  Error('Die angegebene Vorlagedatei "%s" existiert nicht!', template);
+  exit(); 
+}
+
+!Wenn kein Ziel-Exportpfad angegeben wurde,
+!wird der Verzeichnis-Auswahldialog gestartet
+pathLenght = strlen(exportpath);
+if (pathLenght = 0){
+  descr = 'Bitte Zielverzeichnis für den Dateiexport auswählen:';
+  selectedFolder = ShowModalSelectFolderDialog(descr);
+  pathLenght = strlen(selectedFolder);
+  if (pathLenght > 0){
+    !Neu ausgewählten Pfad in Skript speichern
+    this.SetInputParameterDouble('exportpath', selectedFolder);
+  }
+  else {
+    !Dialog-Abbruch durch Benutzer
+    Warn('Kein Exportpfad ausgewählt. Abbruch!');
+    exit();
+  }
+}
+
+!Datei-Präfix festlegen
+calcPrefix = 'ElmLne_';
+filestring = 'ExportData';
+datesuffix = '';
+if (usedatesuffix = 1){
+  !Datei-Suffix festlegen;,
+  systemtime = GetSystemTime();
+  datestring = FormatDateLT('%Y%m%d', systemtime);
+  datesuffix= sprintf('_%s', datestring);
+}
+!Dateinamen festlegen
+filename = sprintf('%s%s%s.xlsx', calcPrefix, filestring, datesuffix);
+!Vollständigen Dateinamen inkl Pfad festlegen, z.B.: ('%s\\%s',strPath,strName)
+fullfilename = sprintf('%s\\%s', exportpath, filename);
+
+
+
+error = xlStart(); !Startet eine neue Excel-Instanz
+if (error) {
+  Error('Excel konnte nicht gestartet werden! Abbruch!'); !Warnmeldung ausgeben
+  exit(); !Skript verlassen
+}
+xlOpenWorkbook(template); !Bestehende Vorlage öffnen
+!xlNewWorkbook(); !Erstellen einer neuen Arbeitsmappe
+!xlSetWorksheetName(1, class);
+xlActivateWorksheet(1); !Aktivieren der 1. Tabelle
+
+xlrow = 5; !Startzeile
+
+netdatfolder = GetProjectFolder('netdat');
+grids = netdatfolder.GetContents('*.ElmNet',0);
+!Alle Netze durchlaufen
+for (grid = grids.First();grid;grid = grids.Next()) {
+
+  !Alle Elemente des Netzes gem. Klassenangabe in ein Set laden
+  !objs = grid.GetContents(class,0);
+  objs = grid.GetChildren(0, classes, 1);
+ 
+  !Alle Objektklassen durchlaufen
+  for (obj = objs.First();obj;obj = objs.Next()) {
+ 
+    lsecs = 0;
+    iscable = obj.IsClass('ElmLne');
+    if (iscable > 0){ lsecs = obj.HasRoutesOrSec(); }
+    iscablesec = obj.IsClass('ElmLnesec');
+
+    xlcol = 1;
+    attribname = strtok(attributes, ',', pos, xlcol);
+
+    
+    outstring = '';
+
+    while(pos > -1){
+    
+      !Attribut-Typ ermitteln
+      obj.GetVarType(attribname, attribtype);
+
+      !Attribut-Typ vom Typ 'string'
+      compare = strcmp(attribtype, 'string');
+      if (compare = 0){
+        obj.GetVal(sval, attribname); !Text auslesen
+        !printf('%s | %s',attribname,sval);
+        outstring = sprintf('%s | %s',attribname,sval);
+        xlSetValue(xlcol, xlrow, sval); !Text nach Excel schreiben
+      }
+      
+      !Attribut-Typ vom Typ 'object'
+      compare = strcmp(attribtype, 'object');
+      if (compare = 0){
+        obj.GetVal(oval, attribname); !Objekt auslesen
+        if (oval = NULL) {
+          sval = ''; !Objektbezeichnung
+        }
+        else {
+          classname = oval.GetClassName();
+          compare = strcmp(classname, 'StaCubic');
+          if (compare = 0){
+            oval = oval:cterm;
+          }
+          sval = oval:loc_name; !Objektbezeichnung
+        }
+        !printf('%s | %s',attribname,sval);
+        outstring = sprintf('%s | %s',attribname,sval);
+        xlSetValue(xlcol, xlrow, sval); !Text nach Excel schreiben
+      }
+
+      !Attribut-Typ vom Typ 'int'
+      compare = strcmp(attribtype, 'int');
+      if (compare = 0){
+        if (lsecs = 0) {
+          obj.GetVal(ival, attribname); !(Integer)-Wert auslesen
+          !printf('%s | %d',attribname,ival);
+          outstring = sprintf('%s | %d',attribname,ival);
+          xlSetValue(xlcol, xlrow, ival); !Wert nach Excel schreiben
+        }
+      }
+
+      !Attribut-Typ vom Typ 'double'
+      compare = strcmp(attribtype, 'double');
+      if (compare = 0){
+        if (lsecs = 0) {
+          obj.GetVal(dval, attribname); !(double)-Wert auslesen
+          !printf('%s | %f',attribname,dval);
+          outstring = sprintf('%s | %f',attribname,dval);
+          xlSetValue(xlcol, xlrow, dval); !Wert nach Excel schreiben
+        }
+      }
+      
+      xlcol += 1;
+      attribname = strtok(attributes, ',', pos, xlcol);
+    
+    }
+    !Parentobjekt ermitteln
+    oval = obj.GetParent();
+    sval = oval:loc_name;
+
+    xlSetValue(xlcol, xlrow, sval); !Wert nach Excel schreiben
+    
+    printf('%o',obj); !Anzeige in der Textausgabe
+    xlrow = xlrow + 1;
+    
+    if (xlrow = 5){ break; }
+  }
+  
+  !break;
+}
+
+xlSaveWorkbookAs(fullfilename); !Excel-Arbeitsmappe unter Zielpfad speichern
+xlCloseWorkbook(); !Excel-Arbeitsmappe schließen
+xlTerminate(); !Excel-Instanz beenden
+		
