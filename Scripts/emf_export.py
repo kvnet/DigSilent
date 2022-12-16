@@ -12,7 +12,7 @@ app = powerfactory.GetApplication() # Application-Objekt
 script = app.GetCurrentScript() # Aktives Powerfactory-Skript-Objekt
 
 # Exportformat definieren
-exportfiletype = 'svg' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
+exportfiletype = 'emf' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
 #iopt_nonly = 0  # to write a file
 iopt_savas = 0  # 0=Datei im angegebenen Pfad des Filenamens speichern, 1=Ruft den 'Speichern Unter...'-Dialog auf
 iRange = 0 # Exportbereich: 0 = Gesamtes Diagramm, 1 = Gesamtes Diagramm mit aktuellen Zoomeinstellungen, 2 = Sichtbaren Bereich 

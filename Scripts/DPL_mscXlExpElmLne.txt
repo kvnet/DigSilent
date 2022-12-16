@@ -1,12 +1,3 @@
-Eingabeparameter:
-string	template	VORLAGEDATEI.xlsx		
-string	exportpath	PFAD		
-string	exportfile			
-int		usedatesuffix	1		Datum als Dateiendung hinzu (0 oder Leer=Nein, 1=Ja)
-string	classes	*.ElmLne*		
-string	attributes	loc_name,typ_id,bus1,bus2,cpZone,dline,nlnum,fline,inAir,inom,Z1,R1,X1,R0,X0
-
-Skript:
 ! -------- VARIABLEN --------
 int     error,
         pathLenght,
@@ -16,7 +7,7 @@ int     error,
         xlcol,
         pos,
         compare,
-        result;
+        result, xlexpcondition;
 
 string  calcPrefix, filestring, datestring, datesuffix,
         filename, fullfilename, selectedFolder, descr;
@@ -112,6 +103,15 @@ for (grid = grids.First();grid;grid = grids.Next()) {
 
     while(pos > -1){
     
+      !Wenn LEitungssektionen vorhanden sind,
+      !dann sollen die Eigenschaften bis inkl. Spalte 7
+      !exportiert werden
+      xlexpcondition = 0;
+      if ({lsecs = 2}.and.{xlcol <= 7}) {
+        xlexpcondition = 1;
+      }
+      
+    
       !Attribut-Typ ermitteln
       obj.GetVarType(attribname, attribtype);
 
@@ -147,7 +147,7 @@ for (grid = grids.First();grid;grid = grids.Next()) {
       !Attribut-Typ vom Typ 'int'
       compare = strcmp(attribtype, 'int');
       if (compare = 0){
-        if (lsecs = 0) {
+        if ({lsecs = 0}.or.{xlexpcondition}) {
           obj.GetVal(ival, attribname); !(Integer)-Wert auslesen
           !printf('%s | %d',attribname,ival);
           outstring = sprintf('%s | %d',attribname,ival);
@@ -158,7 +158,7 @@ for (grid = grids.First();grid;grid = grids.Next()) {
       !Attribut-Typ vom Typ 'double'
       compare = strcmp(attribtype, 'double');
       if (compare = 0){
-        if (lsecs = 0) {
+        if ({lsecs = 0}.or.{xlexpcondition}) {
           obj.GetVal(dval, attribname); !(double)-Wert auslesen
           !printf('%s | %f',attribname,dval);
           outstring = sprintf('%s | %f',attribname,dval);
@@ -188,4 +188,3 @@ for (grid = grids.First();grid;grid = grids.Next()) {
 xlSaveWorkbookAs(fullfilename); !Excel-Arbeitsmappe unter Zielpfad speichern
 xlCloseWorkbook(); !Excel-Arbeitsmappe schließen
 xlTerminate(); !Excel-Instanz beenden
-		
