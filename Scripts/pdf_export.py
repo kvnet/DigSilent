@@ -10,58 +10,67 @@ import datetime as dt
 app = powerfactory.GetApplication() # Application-Objekt
 script = app.GetCurrentScript() # Aktives Powerfactory-Skript-Objekt
 
-# Exportformat definieren
+# Export-Eigenschaften festlegen
 exportfiletype = 'pdf' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
 iopt_savas = 0  # 0=Datei im angegebenen Pfad des Filenamens speichern, 1=Ruft den 'Speichern Unter...'-Dialog auf
-iRange = 0 # Exportbereich: 0 = Gesamtes Diagramm, 1 = Gesamtes Diagramm mit aktuellen Zoomeinstellungen, 2 = Sichtbaren Bereich 
+iRange = 0 # Exportbereich: 0 = Gesamtes Diagramm, 1 = Gesamtes Diagramm mit aktuellen Zoomeinstellungen, 2 = Sichtbarer Bereich 
 dpi = 1000 # Auflösung der Ausgabe in DPI 
+iFrame = True # Rahmen erzeugen
 
 # KLASSEN
-class ExportFile:
-        def  __init__(self, page, pgnumber, path, pgfmtsubdir, prefix, filesuffix, datesuffix, filetype):
-            self.page = page # Page-Objekt von Powerfactory
-            self.pagenumber = pgnumber
-            self.path = path # ExportPath-Eingabe des Skripts
-            self.pgfmtsubdir = pgfmtsubdir
-            self.prefix = prefix
-            self.filesuffix = filesuffix
-            self.datesuffix = datesuffix
-            self.filetype = filetype
+class ExportPage:
+        # Konstruktor
+        def  __init__(self, page: object, path: str, calctype: str, filetype: str, setdatesuffix=False):
+                self.page = page # Page-Objekt von Powerfactory
+                self._path = path # ExportPath-Eingabe des Skripts
+                self._calctype = calctype
+                self._setdatesuffix = setdatesuffix
+                self._filetype = filetype
 
-        # Funktion zur Erstellung des Dateinamens ohne Erweiterung
-        def SetFileName(self):
-            # Seitennummer des Diagramms (pGrph) des Page-Objektes auslesen
-            __pagenumber = str(self.pagenumber)
-            if (__pagenumber != ''):
-                __pagenumber = __pagenumber + '_'
-            else:
-                __pagenumber = ''
+        # Eigenschaft zur Rückgabe des Dateinamens ohne Erweiterung
+        @property
+        def filename(self):
+                # Rückgabe des Dateinamens (ohne Verzeichnis)
+                return self._calctype + '_' + \
+                        self.pagenumber + '_' + \
+                        self.page.loc_name + \
+                        self.datesuffix + \
+                        '.' + self._filetype            
 
-            return self.prefix + '_' + \
-                __pagenumber + self.page.loc_name +  \
-                self.filesuffix + \
-                self.datesuffix + \
-                '.' + self.filetype            
+        @property
+        def datesuffix(self):
+                if (self.datesuffix == True):
+                        date = dt.datetime.now().strftime('%Y%m%d')
+                        return '_' + date
+                return ''
 
-        # Funktion zur Ermittlung des Seitenformates der aktiven Grafik
-        def PageFormat(self):
+        @property
+        def pagenumber(self):
+                # Seitennummer aus dem Page-Objekt auslesen
+                # (= Reihenfolge in der Grafiksammlung ist in Powerfactory immer eine Zahl)
+                pgnr = int(self.page.order) # oder auch anders geschrieben: page.GetAttribute('order')
+                # umwandeln der Seitennummer 3-stellig mit führenden Nullen
+                return str(pgnr).zfill(3)
+
+        # Rückgabe des Seitenformates der aktiven Grafik
+        @property
+        def pageformat_name(self):
             diag = self.page.GetAttribute('pGrph')
             setgrphpgs = diag.GetChildren(1, 'Format.SetGrfpage', 1)
             setgrphpg = setgrphpgs[0]
             return setgrphpg.GetAttribute('aDrwFrm')           
 
+        # Rückgabe des vollständigen Dateinamens inkl. Pfad
+        @property
+        def fullfilename(self):
+                return os.path.join(self._path, self.filename)
 
-        def FullFileName(self):
-                if (self.pgfmtsubdir == True):
-                        return os.path.join(self.path, self.PageFormat(), self.SetFileName())
-                else:
-                        return os.path.join(self.path,  self.SetFileName())
 
-        def FileExists(self):
-            return os.path.isfile(self.FullFileName())
+        def file_exists(self):
+            return os.path.isfile(self.fullfilename)
 
         def delete_file(self):
-            ffn = self.FullFileName()
+            ffn = self.fullfilename
             try: # Versuche die vorhandenen Datei zu löschen
                 os.remove(ffn)
             except: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
@@ -69,9 +78,103 @@ class ExportFile:
                 return False
             return True
 
+        def ExportGraph():
+                pass
 
 
 # FUNKTIONEN / DEFINITITIONEN
+def main(desktop):
+        prefixtuple = ('Base', 'Ldfl', 'Shc3', 'Shc1') # Tuple-Collection der Präfixe
+        graphs = [] # Leere Liste für ExportPage-Klassen erstellen
+        errormsgs = [] # Leere Liste für Fehlermeldungen erstellen
+
+        # Informationsausgabe in PowerFactory
+        strInfoHeader = ' STARTE ' + exportfiletype.upper() + '-EXPORT: '
+        app.PrintInfo(strInfoHeader.center(50, '#'))
+
+        # ---> '############### STARTE EXPORT: ###############'
+
+        # 1.) Überprüfen ob der im Skript angegebene Pfad existiert
+        exportpath = CheckExportPath(str(script.ExportPath))
+        if exportpath == '':
+                errormsgs.append('Fehlender oder falscher Exportpfad! Skript-Abbruch!')
+
+        # 2.) Überprüfen der Berechnungsart
+        calctypeindex = int(script.CalcType)
+        if CheckCalctype(calctypeindex) == False:
+                errormsgs.append('Die Variable CalcType liegt ausserhalb ' + \
+                        'des gültigen Bereiches (0-3)! Skript-Abbruch!')
+        else:
+                calctypeindex = int(script.CalcType)
+
+        # 3.) Überprüfen ob Datum als Datei-Suffix hinzugefügt werden soll
+        setdatesuffix = CheckScriptDateSuffix(int(script.DateSuffix))
+
+        # 4.) Überprüfen ob Fehlermeldungen in der Liste errormsgs vorhanden sind
+        # Wenn Ja, dann Fehlermeldungen anzeigen und Skript beenden
+        if len(errormsgs) > 0:
+                for errmsg in errormsgs:
+                        app.PrintError(errmsg)
+                exit()
+        
+        # 5.) Überprüfen, ob ein Unterverzeichnis angegeben wurde
+        if (str(script.SubDir) != ''):
+                exportpath = os.path.join(exportpath, str(script.SubDir))
+
+        # Inhalt des GraphicsBoard-Objektes in neue Liste 'pages' laden
+        pages = desktop.GetContents()
+        # Alle in der Grafiksammlung vorhandenen Netzgrafiken durchlaufen,
+        # an Klasse 'ExportPage' übergeben und die Klassen in einer Liste
+        # speichern 
+        for page in pages:
+                # Eigenschaft 'Seite wiederverwerten' der Grafikseite auslesen und als Ausgabe-Option verwenden
+                pgexport = bool(page.iRecycl) # oder auch anders geschrieben: page.GetAttribute('iRecycl')
+                if pgexport == True:
+                        epg = ExportPage(page, exportpath, prefixtuple[calctypeindex], exportfiletype, setdatesuffix)
+                        graphs.append(epg)
+
+
+        exportssuccess = 0
+        exportsfailure = 0
+        for graph in graphs:
+                p = graph.page
+                pn = p.GetAttribute('loc_name') # oder auch nur page.loc_name falls Attribut bekannt
+                ffn = graph.fullfilename
+
+                app.PrintPlain('Exportiere Grafik ' + pn)
+                app.PrintPlain('Exportiere Grafik nach ' + ffn)
+
+                # if graph.file_exists() == True:
+                #         if graph.delete_file() == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
+                #                 exportsfailure += 1
+
+                
+                #if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
+                        #app.SetGraphicUpdate(1)
+                       # app.SetGuiUpdateEnabled(1)
+
+                # QUELLE: https://www.digsilent.de/en/faq-reader-powerfactory/how-do-i-export-a-graphic-using-python.html
+                # Aufruf des CommonWrite-Objektes von Powerfactory
+                # comWr = app.GetFromStudyCase('ComWr')
+                # comWr.SetAttribute('iopt_rd', exportfiletype)
+                # #comWr.iopt_nonly = 0  # to write a file
+                # comWr.SetAttribute('iopt_savas', iopt_savas)
+                # comWr.SetAttribute('f', str(ffn)) # Filename
+                # comWr.iRange = iRange
+                # comWr.iFrame = iFrame
+                # comWr.dpi = dpi # Auflösung der Ausgabe in DPI
+                # comWr.Execute()
+
+                exportssuccess += 1
+
+        if exportsfailure > 0:
+                app.PrintWarn('Erfolgreiche Exporte: ' + str(exportssuccess) + \
+                        ', Fehlgeschlagene Exporte: ' + str(exportsfailure))
+        else:
+                app.PrintInfo('Erfolgreiche Exporte: ' + str(exportssuccess) + \
+                        ', Fehlgeschlagene Exporte: ' + str(exportsfailure))
+
+
 def CheckExportPath(strPath):
         # Wenn angegebener Pfad ungültig oder nicht vorhanden ist, ...
         if os.path.exists(strPath) == False or strPath == '':
@@ -98,129 +201,17 @@ def CheckScriptDateSuffix(intDatesuffix):
                 script.SetInputParameterInt('DateSuffix', 0)
                 app.PrintWarn('Falsche Eingabe für das DateSuffix! ' + \
                         'Wert wurde auf 0 zurückgesetzt!')
-        return script.DateSuffix
-
-def SetDateSuffix(intDatesuffix):
-        if (intDatesuffix == 1):
-                exportdate = dt.datetime.now()
-                return '_' + exportdate.strftime('%Y%m%d')
-        return ''
+        return bool(script.DateSuffix) # Wahrheitswert zurück geben
 
 
-#def SetFileSuffixText(strFilesuffix):
-        # Wenn der DateiSuffix nicht leer ist
-#        if (strFilesuffix != ''):
-#                return '_' + strFilesuffix
-#        return ''
+#Einstiegspunkt
+if __name__ == '__main__':
 
+        # Grafiksammlung des aktiven Berechnungsfalles in Objekt laden
+        desktop = app.GetGraphicsBoard()
+        # Wenn Desktop-Objekt (aktives GraphicsBoard) leer ist, dann Skript verlassen
+        if not (desktop):
+                exit()
+        # Grafiksammlung an die Hauptfunktion übergeben
+        main(desktop)
 
-prefixtuple = ('Base', 'Ldfl', 'Shc3', 'Shc1') # Tuple-Collection der Präfixe
-
-files = [] # Leere Liste für Exportfile-Klassen erstellen
-errormsgs = [] # Leere Liste für Fehlermeldungen erstellen
-
-# Ausgabefenster von Powerfactory löschen
-# app.ClearOutputWindow()
-
-# Informationsausgabe
-strInfoHeader = " STARTE " + exportfiletype.upper() + "-EXPORT: "
-app.PrintInfo(strInfoHeader.center(50, "#"))
-
-
-# ---> "############### STARTE EXPORT: ###############"
-
-# 1.) Überprüfen ob der im Skript angegebene Pfad existiert
-exportpath = CheckExportPath(str(script.ExportPath))
-if exportpath == '':
-        errormsgs.append('Fehlender oder falscher Exportpfad! Skript-Abbruch!')
-
-# 2.) Überprüfen der Berechnungsart
-calctypeindex = int(script.CalcType)
-calctype = CheckCalctype(int(script.CalcType))
-if calctype == False:
-        errormsgs.append('Die Variable CalcType liegt ausserhalb ' + \
-                'des gültigen Bereiches (0-3)! Skript-Abbruch!')
-else:
-        calctypeindex = int(script.CalcType)
-
-# 3.) Überprüfen ob Datum als Datei-Suffix hinzugefügt werden soll
-checkdatesuffix = CheckScriptDateSuffix(int(script.DateSuffix))
-datesuffix = SetDateSuffix(checkdatesuffix)
-
-# 4.) File-Suffix
-#filesuffix = SetFileSuffixText(str(script.FileSuffix))
-filesuffix = ''
-
-# 5.)
-# Überprüfen ob Fehlermeldungen in der Liste errormsgs vorhanden sind
-# Wenn Ja, dann Fehlermeldungen anzeigen und Skript beenden
-if len(errormsgs) > 0:
-        for errmsg in errormsgs:
-                app.PrintError(errmsg)
-        exit()
-# 6.)
-if (str(script.SubDir) != ''):
-        exportpath = os.path.join(exportpath, str(script.SubDir))
-# 7.)
-# Unterverzeichnis gem. Seitenformat erstellen
-createsubdir = bool(script.PageFormatSubDir)
-app.PrintInfo(str(createsubdir))
-
-# Grafiksammlung des aktiven Berechnungsfalles in Objekt laden
-desktop = app.GetGraphicsBoard()
-
-# Wenn Desktop-Objekt (aktives GraphicsBoard) leer ist, dann Skript verlassen
-if not (desktop):
-        exit()
-
-# Inhalt des GraphicsBoard-Objektes in neue Liste 'pages' laden
-pages = desktop.GetContents()
-
-# Alle in der Grafiksammlung vorhandenen Netzgrafiken durchlaufen
-# an Klasse 'ExportFile' übergeben und selbige in einer Liste
-# zwischenspeichern 
-for page in pages:
-        #Seitennummer = Reihenfolgenummer 3-stellig mit führenden Nullen
-        pgnumber = str(int(page.order)).zfill(3) # oder auch anders geschrieben: page.GetAttribute('order')
-        pgexport = page.iRecycl # oder auch anders geschrieben: page.GetAttribute('iRecycl')
-        if pgexport == True:
-                ef = ExportFile(page, pgnumber, exportpath, createsubdir, prefixtuple[calctypeindex], filesuffix, datesuffix, exportfiletype)
-                files.append(ef)
-
-exportssuccess = 0
-exportsfailure = 0
-for file in files:
-        p = file.page
-        pn = p.GetAttribute('loc_name') # oder auch nur page.loc_name falls Attribut bekannt
-        fn = file.FullFileName()
-
-        app.PrintPlain('Exportiere Grafik ' + pn)
-
-        if file.FileExists() == True:
-                if file.delete_file() == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
-                        exportsfailure += 1
-
-        
-        if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
-                app.SetGraphicUpdate(1)
-                app.SetGuiUpdateEnabled(1)
-
-                # QUELLE: https://www.digsilent.de/en/faq-reader-powerfactory/how-do-i-export-a-graphic-using-python.html
-                # Aufruf des CommonWrite-Objektes von Powerfactory
-                comWr = app.GetFromStudyCase('ComWr')
-                comWr.SetAttribute('iopt_rd', exportfiletype)
-                #comWr.iopt_nonly = 0  # to write a file
-                comWr.SetAttribute('iopt_savas', iopt_savas)
-                comWr.SetAttribute('f', str(fn)) # Filename
-                comWr.iRange = iRange
-                comWr.dpi = dpi # Auflösung der Ausgabe in DPI
-                comWr.Execute()
-
-                exportssuccess += 1
-
-if exportsfailure > 0:
-        app.PrintWarn("Erfolgreiche Exporte: " + str(exportssuccess) + \
-                ", Fehlgeschlagene Exporte: " + str(exportsfailure))
-else:
-        app.PrintInfo("Erfolgreiche Exporte: " + str(exportssuccess) + \
-                ", Fehlgeschlagene Exporte: " + str(exportsfailure))
