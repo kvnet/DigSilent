@@ -5,7 +5,6 @@
 import powerfactory # Importieren des DigSilent Powerfactory Moduls
 import os
 import datetime as dt
-import time
 
 # Powerfactory-Objekte festlegen
 app = powerfactory.GetApplication() # Application-Objekt
@@ -13,14 +12,12 @@ script = app.GetCurrentScript() # Aktives Powerfactory-Skript-Objekt
 
 # Exportformat definieren
 exportfiletype = 'pdf' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
-#iopt_nonly = 0  # to write a file
 iopt_savas = 0  # 0=Datei im angegebenen Pfad des Filenamens speichern, 1=Ruft den 'Speichern Unter...'-Dialog auf
 iRange = 0 # Exportbereich: 0 = Gesamtes Diagramm, 1 = Gesamtes Diagramm mit aktuellen Zoomeinstellungen, 2 = Sichtbaren Bereich 
 dpi = 1000 # Auflösung der Ausgabe in DPI 
 
 # KLASSEN
 class ExportFile:
-
         def  __init__(self, page, pgnumber, path, pgfmtsubdir, prefix, filesuffix, datesuffix, filetype):
             self.page = page # Page-Objekt von Powerfactory
             self.pagenumber = pgnumber
@@ -32,7 +29,7 @@ class ExportFile:
             self.filetype = filetype
 
         # Funktion zur Erstellung des Dateinamens ohne Erweiterung
-        def GetFileName(self):
+        def SetFileName(self):
             # Seitennummer des Diagramms (pGrph) des Page-Objektes auslesen
             __pagenumber = str(self.pagenumber)
             if (__pagenumber != ''):
@@ -54,17 +51,17 @@ class ExportFile:
             return setgrphpg.GetAttribute('aDrwFrm')           
 
 
-        def GetFullFileName(self):
+        def FullFileName(self):
                 if (self.pgfmtsubdir == True):
-                        return os.path.join(self.path, self.PageFormat(), self.GetFileName())
+                        return os.path.join(self.path, self.PageFormat(), self.SetFileName())
                 else:
-                        return os.path.join(self.path,  self.GetFileName())
+                        return os.path.join(self.path,  self.SetFileName())
 
         def FileExists(self):
-            return os.path.isfile(self.GetFullFileName())
+            return os.path.isfile(self.FullFileName())
 
         def delete_file(self):
-            ffn = self.GetFullFileName()
+            ffn = self.FullFileName()
             try: # Versuche die vorhandenen Datei zu löschen
                 os.remove(ffn)
             except: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
@@ -195,7 +192,7 @@ exportsfailure = 0
 for file in files:
         p = file.page
         pn = p.GetAttribute('loc_name') # oder auch nur page.loc_name falls Attribut bekannt
-        fn = file.GetFullFileName()
+        fn = file.FullFileName()
 
         app.PrintPlain('Exportiere Grafik ' + pn)
 
