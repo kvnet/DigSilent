@@ -38,8 +38,7 @@ class ExportDeskPage:
                 self.setdatesuffix = setdatesuffix # Boolean, ob Datumskürzel hinzugefügt wird
                 self.filetype = filetype # Datei-Endung als String
 
-        # Eigenschaft zur Rückgabe des Dateinamens ohne Erweiterung
-        @property
+        # Funktion zur Rückgabe des Dateinamens ohne Erweiterung
         def filename(self):
                 # Rückgabe des Dateinamens (ohne Verzeichnis)
                 return self.calctype + '_' + \
@@ -120,7 +119,7 @@ def main(desktop):
 
         # Überprüfen der Berechnungsart
         calctypeindex = int(script.CalcType)
-        if ScriptCtiInRange(calctypeindex) == False:
+        if CalcTypeIndexInRange(calctypeindex, prefixtuple) == False:
                 errormsgs.append('Die Variable CalcType liegt ausserhalb ' + \
                         'des gültigen Bereiches (0-3)! Skript-Abbruch!')
 
@@ -194,10 +193,10 @@ def CheckExportPath(targetpath):
                 return targetpath
 
 # Prüfung der Benutzereingabe der Variable 'CalcType'
-def ScriptCtiInRange(calctypeindex):
+def CalcTypeIndexInRange(calctypeindex, prefixtuple):
         # Wenn die Benutzereingabe der Variable 'CalcType'
         # außerhalb des Bereiches 0-3 liegt, wird 'Falsch' zurück gegeben
-        if calctypeindex in range(0, 4):
+        if calctypeindex in range(0, len(prefixtuple)):
                 return True
         else:
                 return False
