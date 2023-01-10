@@ -65,7 +65,7 @@ class ExportDeskPage:
 
         # Rückgabe des Seitenformates der aktiven Grafik
         @property
-        def pageformat_name(self):
+        def page_formatname(self):
             setgrphpg = self.__getgrphpg  
             return setgrphpg.GetAttribute('aDrwFrm')
 
