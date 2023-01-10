@@ -153,7 +153,7 @@ def main(desktop):
         exportsfailure = 0
         for deskpage in deskpages:
                 # Überprüfen, ob deskpage eine Klasseninstanz von ExportDeskPage ist
-                if isinstance(deskpage, ExportDeskpage) == True:
+                if isinstance(deskpage, ExportDeskPage) == True:
                         p = deskpage.page
                         pname = p.GetAttribute('loc_name') # oder auch nur deskpage.loc_name falls Attribut bekannt
                         ffname = deskpage.fullfilename
