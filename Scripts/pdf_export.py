@@ -183,7 +183,7 @@ def main(desktop):
                 app.PrintInfo(info_str) # anderenfalls, Information ausgeben
 
 
-# Prüfung der Benutzereingabe der Variable 'CalcType'
+# Prüfung der Benutzereingabe der Variable 'ExportPath'
 def CheckExportPath(targetpath):
         # Wenn angegebener Pfad ungültig oder nicht vorhanden ist, ...
         if os.path.exists(targetpath) == False or targetpath == '':
@@ -211,11 +211,10 @@ def SetScriptDateSuffix(datesuffix):
                         'Wert wurde auf 0 zurückgesetzt!')
         return bool(script.DateSuffix) # Wahrheitswert zurück geben
 
+# Alle Netzgrafiken der Grafiksammlung des aktiven Berechnungsfalles durchlaufen,
+# einer 'ExportDeskPage'-Klasse übergeben und selbige in einer Liste speichern
 def GetDeskpageList(deskpages: object, exportpath: str, calctype: str, setdatesuffix: bool):
         deskpagelist = [] # Leere Liste für ExportDeskPage-Klassen erstellen
-        # Alle in der Grafiksammlung "pages" vorhandenen Netzgrafiken durchlaufen,
-        # an Klasse 'ExportDeskPage' übergeben und die Klassen in einer Liste
-        # speichern 
         for deskpage in deskpages:
                 # Eigenschaft 'Seite wiederverwerten' der Grafikseite auslesen und als Ausgabe-Option verwenden
                 pgexport = bool(deskpage.iRecycl) # oder auch anders geschrieben: deskpage.GetAttribute('iRecycl')
