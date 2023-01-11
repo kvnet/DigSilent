@@ -90,17 +90,7 @@ class ExportDeskPage:
             setgrphpgs = diag.GetChildren(1, 'Format.SetGrfpage', 1)
             return setgrphpgs[0]
 
-        def file_exists(self):
-            return os.path.isfile(self.fullfilename)
 
-        def delete_file(self):
-            ffname = self.fullfilename
-            try: # Versuche die vorhandenen Datei zu löschen
-                os.remove(ffname)
-            except: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
-                app.PrintWarn(f'Export fehlgeschlagen: {ffname}')
-                return False
-            return True
 
 
 # FUNKTIONEN / DEFINITITIONEN
@@ -157,8 +147,8 @@ def main(desktop):
 
                         app.PrintPlain(f'Exportiere Grafik {pname}') # nach {ffname}')
 
-                        if deskpageclass.file_exists() == True:
-                                if deskpageclass.delete_file() == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
+                        if file_exists(ffname) == True:
+                                if delete_file(ffname) == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
                                         exportsfailure += 1
 
                         
@@ -276,6 +266,18 @@ def SetupPdfPage(deskpageclass: ExportDeskPage):
 # Berechnet den Skalierungsfaktor anhand der alten Höhe in [mm] zur neuen Höhe in [mm]
 def ScaleFactor(source_height, target_height):
         return target_height/source_height
+
+def file_exists(fullfilename):
+        return os.path.isfile(fullfilename)
+
+def delete_file(fullfilename):
+        try: # Versuche die vorhandenen Datei zu löschen
+                os.remove(fullfilename)
+                return True
+        except: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
+                app.PrintWarn(f'Export fehlgeschlagen: {fullfilename}')
+                return False
+
 
 # Einstiegspunkt
 if __name__ == '__main__':
