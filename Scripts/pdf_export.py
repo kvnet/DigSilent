@@ -162,15 +162,15 @@ def main(desktop):
                                         exportsfailure += 1
 
                         
-                        #if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
+                        if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
                                 #app.SetGraphicUpdate(1)
                                 #app.SetGuiUpdateEnabled(1)
 
-                        export = ExportDeskpage(deskpageclass)
-                        #scale = SetupPdfPage(deskpageclass)
-                        scale = True
-                        if export == True and scale == True:
-                               exportssuccess += 1                  
+                                export = ExportDeskpage(deskpageclass)
+                                #scale = SetupPdfPage(deskpageclass)
+                                scale = True
+                                if export == True and scale == True:
+                                        exportssuccess += 1                  
 
         info_str = f'Erfolgreiche Exporte: {exportssuccess}, Fehlgeschlagene Exporte: {exportsfailure}'
         
