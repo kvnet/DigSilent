@@ -37,6 +37,8 @@ class ExportDeskPage:
                 self.calctype = calctype # Kalklulationsart-Kürzel von prefixtuple als String
                 self.setdatesuffix = setdatesuffix # Boolean, ob Datumskürzel hinzugefügt wird
                 self.filetype = filetype # Datei-Endung als String
+                self.pdfexport = False
+                self.pdfformat = False
 
         # Dateiname ohne Erweiterung
         @property
@@ -62,13 +64,13 @@ class ExportDeskPage:
         # Seitenformat-Name der aktiven Grafik
         @property
         def page_format_name(self):
-            setgrphpg = self.__getgrphpg  
+            setgrphpg = self.__getgrphpg()  
             return setgrphpg.GetAttribute('aDrwFrm')
 
         # Seitenausrichtung der aktiven Grafik (0=Hochformat, 1=Querformat)
         @property
         def page_orientation(self):
-            setgrphpg = self.__getgrphpg
+            setgrphpg = self.__getgrphpg()
             orientation = int(setgrphpg.GetAttribute('iDrwFrm'))
             return orientation
 
@@ -89,8 +91,6 @@ class ExportDeskPage:
             diag = self.page.GetAttribute('pGrph')
             setgrphpgs = diag.GetChildren(1, 'Format.SetGrfpage', 1)
             return setgrphpgs[0]
-
-
 
 
 # FUNKTIONEN / DEFINITITIONEN
@@ -125,7 +125,9 @@ def main(desktop):
                         app.PrintError(errmsg)
                 exit()
 
-
+        # Powerfactory-Projekteinstellungen in Dictionary Speichern
+        # Projekt\Einstellungen\Page Formats
+        pageformats = ProjectPageFormats(script.PageFormats, '*.SetFormat')
 
         # ---> '############### STARTE EXPORT: ###############'
         # Informationsausgabe in PowerFactory
@@ -133,34 +135,38 @@ def main(desktop):
         app.PrintInfo(strInfoHeader.center(50, '#'))
 
         # Inhalt des GraphicsBoard-Objektes in neue Liste 'deskpages' laden
-        graphicboards=desktop.GetContents()
+        graphicboards=desktop.GetContents('*.SetDeskpage')
         deskpages = GetDeskpageList(graphicboards, exportpath, prefixtuple[calctypeindex], setdatesuffix)
 
         exportssuccess = 0
         exportsfailure = 0
-        for deskpageclass in deskpages:
+        for dpg in deskpages:
                 # Überprüfen, ob deskpage eine Klasseninstanz von ExportDeskPage ist
-                if isinstance(deskpageclass, ExportDeskPage) == True:
-                        p = deskpageclass.page
+                if isinstance(dpg, ExportDeskPage) == True:
+                        p = dpg.page
                         pname = p.GetAttribute('loc_name') # oder auch nur deskpage.loc_name falls Attribut bekannt
-                        ffname = deskpageclass.fullfilename
+                        ffname = dpg.fullfilename
 
                         app.PrintPlain(f'Exportiere Grafik {pname}') # nach {ffname}')
 
                         if file_exists(ffname) == True:
                                 if delete_file(ffname) == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
-                                        exportsfailure += 1
+                                        dpg.export = False
+                                        #exportsfailure += 1
 
                         
                         if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
-                                #app.SetGraphicUpdate(1)
-                                #app.SetGuiUpdateEnabled(1)
+                                app.SetGraphicUpdate(1)        
+                                app.SetGuiUpdateEnabled(1)
 
-                                export = ExportDeskpage(deskpageclass)
-                                #scale = SetupPdfPage(deskpageclass)
-                                scale = True
-                                if export == True and scale == True:
-                                        exportssuccess += 1                  
+                                if ExportDeskpage(dpg) == True:
+                                        dpg.pdfexport = True
+                                        if SetupPdfPage(dpg, pageformats) == True:
+                                                dpg.pdfformat = True
+                                
+
+                                        
+                                        #exportssuccess += 1                  
 
         info_str = f'Erfolgreiche Exporte: {exportssuccess}, Fehlgeschlagene Exporte: {exportsfailure}'
         
@@ -229,43 +235,69 @@ def ExportDeskpage(deskpageclass: ExportDeskPage):
                 return False
 
 # Skaliert die Seite der exportierten PDF-Datei und fügt Meta-Daten hinzu
-def SetupPdfPage(deskpageclass: ExportDeskPage):
-        try:
-                # Lesen der existierenden PDF-Datei
-                pdf = PdfReader(deskpageclass.fullfilename)
-                # Ermitteln der PDF-Dimensionen (Breite/Höhe)
-                pdfpage = pdf.pages[0] # 1. Seite laden
-                source_width, source_height = pdfpage.mediabox.upper_right # Ermitteln der Breite und Höhe in Punkten
-                source_height = float(source_height) * ptmm_converter # Umrechnen der ermittelten Höhe in [mm]
+def SetupPdfPage(deskpageclass: ExportDeskPage, pageformats: dict):
+        # Prüfen, ob der Name des in der Klasse gespeicherten Seitenformats
+        # im Dictionary enthalten ist
+        key = deskpageclass.page_format_name
+        if key in pageformats:
+                try:
+                        # Lesen der existierenden PDF-Datei
+                        pdf = PdfReader(deskpageclass.fullfilename)
+                        # Ermitteln der PDF-Dimensionen (Breite/Höhe)
+                        pdfpage = pdf.pages[0] # 1. Seite laden
+                        source_width, source_height = pdfpage.mediabox.upper_right # Ermitteln der Breite und Höhe in Punkten
+                        source_height = float(source_height) * ptmm_converter # Umrechnen der ermittelten Höhe in [mm]
 
-                # Skalieren der PDF-Datei auf die neue Zielhöhe
-                target_width, target_height = deskpageclass._page_dimensions()
-                pdfpage.scale_by(ScaleFactor(source_height, target_height))
+                        # Skalieren der PDF-Datei auf die neue Zielhöhe
+                        target_width, target_height = pageformats[key]
+                        scale = ScaleFactor(source_height, target_height)
+                        app.PrintPlain(f'{key} Breite: {source_width}, Höhe: {source_height} => Breite: {target_width}, Höhe: {target_height} Skalierung: {scale}') # TEST
+                        
+                        pdfpage.scale_by(scale)
 
-                new_pdfpage = PdfWriter()
-                new_pdfpage.add_page(pdfpage)
-                
-                # Metadaten hinzufügen
-                username = app.GetSettings('username')
-                title = f'{deskpageclass.calctype} {deskpageclass.page.loc_name}'
-                new_pdfpage.add_metadata(
-                        {
-                        "/Title": title,
-                        "/Author": username,
-                        "/Producer": "DIgSILENT Powerfactory 2019"
-                        }
-                )
+                        new_pdfpage = PdfWriter()
+                        new_pdfpage.add_page(pdfpage)
+                        
+                        # Metadaten hinzufügen
+                        username = app.GetSettings('username')
+                        title = f'{deskpageclass.calctype} {deskpageclass.page.loc_name}'
+                        new_pdfpage.add_metadata(
+                                {
+                                "/Title": title,
+                                "/Author": username,
+                                "/Producer": "DIgSILENT Powerfactory 2019"
+                                }
+                        )
 
-                # Ausgabe der neuen PDF-Datei -> die Original-Datei wird überschrieben
-                new_pdfpage.write(pdf)
-                return True
-        except:
-
+                        # Ausgabe der neuen PDF-Datei -> die Original-Datei wird überschrieben
+                        new_pdfpage.write(pdf)
+                        return True
+                except:
+                        return False
+        else:        
                 return False
+
 
 # Berechnet den Skalierungsfaktor anhand der alten Höhe in [mm] zur neuen Höhe in [mm]
 def ScaleFactor(source_height, target_height):
         return target_height/source_height
+
+# Auslesen aller in den Projekteinstellungen vorhandenen Seitenformate
+# Rückgabe eines Dictionary {'Seitenformatname':[Breite, Höhe]}
+def ProjectPageFormats(ext_script_obj, contenttype: str):
+        pageformats = {} # Leeres Dictionary
+        prjpageformats = ext_script_obj.GetContents(contenttype)
+        
+        # Alle Seitenformate durchlaufen, Werte auslesen und
+        # in Dictionary speichern
+        for pgformat in prjpageformats:
+                fname = pgformat.GetAttribute('loc_name') # Namen auslesen
+                f_width = pgformat.GetAttribute('iSizeX') # Seitenbreite auslesen
+                f_height = pgformat.GetAttribute('iSizeY') # Seitenhöhe auslesen
+                
+                pageformats[fname] = [f_width, f_height]
+
+        return pageformats
 
 def file_exists(fullfilename):
         return os.path.isfile(fullfilename)
