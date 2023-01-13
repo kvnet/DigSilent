@@ -11,6 +11,7 @@
 import powerfactory # Importieren des DigSilent Powerfactory Moduls
 import os
 import datetime as dt
+from dataclasses import dataclass
 from PyPDF2 import PdfWriter, PdfReader
 
 # Powerfactory-Objekte festlegen
@@ -18,7 +19,7 @@ app = powerfactory.GetApplication() # Application-Objekt
 script = app.GetCurrentScript() # Aktives Powerfactory-Skript-Objekt
 
 # Export-Eigenschaften festlegen
-exportfiletype = 'pdf' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
+filetype = 'emf' # Dateiendung festlegen (!!! OHNE PUNKT !!!)
 iopt_savas = 0  # 0=Datei im angegebenen Pfad des Filenamens speichern, 1=Ruft den 'Speichern Unter...'-Dialog auf
 iRange = 0 # Exportbereich: 0 = Gesamtes Diagramm, 1 = Gesamtes Diagramm mit aktuellen Zoomeinstellungen, 2 = Sichtbarer Bereich 
 dpi = 1000 # Auflösung der Ausgabe in DPI 
@@ -28,68 +29,64 @@ iFrame = True # Rahmen erzeugen
 ptmm_converter = float(0.3527777778) # Umrechnungsfaktor Punkt zu 'mm'
 
 # KLASSEN
-class ExportDeskPage:
+# Enumerator für PowerFactory Klassen-Typen
+class PfClsType:
+        SetDeskpage = '*.SetDeskpage'
+        SetFormat = '*.SetFormat'
+        SetGrfpage = '*.SetGrfpage'
         
-        # Konstruktor
-        def  __init__(self, page:object, exportpath:str, calctype:str, filetype:str, setdatesuffix=False):
-                self.page = page # Page-Objekt von Powerfactory
-                self.exportpath = str(exportpath) # ExportPath-Eingabe des Skripts als String
-                self.calctype = calctype # Kalklulationsart-Kürzel von prefixtuple als String
-                self.setdatesuffix = setdatesuffix # Boolean, ob Datumskürzel hinzugefügt wird
-                self.filetype = filetype # Datei-Endung als String
-                self.pdfexport = False
-                self.pdfformat = False
+
+#@dataclass(frozen=True)
+class Deskpage:
+        page: object
+        path: str
+        calculation_type: str
+        file_extension: str
+        datesuffix: bool
+
+        def __init__(self, page, path, ctype, file_extension, datesuffix = False) -> None:
+                self.page = page
+                self.path = path
+                self.ctype = ctype
+                self.file_extension = file_extension
+                self.datesuffix = datesuffix
+                self.file_export: bool = False
+                self.file_formation: bool = False
+                self.__pgname: str = page.GetAttribute('loc_name') # Name des Objektes in der Grafiksammlung
+                self.__pgorder: str = str(page.GetAttribute('order')) # Seitennummer (= Reihenfolge in der Grafiksammlung -> immer eine Zahl in PF)
 
         # Dateiname ohne Erweiterung
         @property
-        def filename(self):
+        def filename(self) -> str:
                 # Rückgabe des Dateinamens (ohne Verzeichnis)
-                fn = f'{self.calctype}_{self.page_number}_{self.page.loc_name}{self.__datesuffix()}.{self.filetype}'
-                return fn
+                return f'{self.ctype}_{self.page_number}_{self.__pgname}{self.__datesuffix()}.{self.file_extension}'
                 
         # vollständiger Dateinamens inkl. Pfad
         @property
-        def fullfilename(self):
-                return os.path.join(self.exportpath, self.filename)
+        def fullfilename(self)-> str:
+                return os.path.join(self.path, self.filename)
 
         # Seitennummer
         @property
-        def page_number(self):
-                # Seitennummer aus dem Page-Objekt auslesen
-                # (= Reihenfolge in der Grafiksammlung ist in Powerfactory immer eine Zahl)
-                pgnr = int(self.page.order) # oder auch anders geschrieben: page.GetAttribute('order')
+        def page_number(self) -> str:
                 # umwandeln der Seitennummer 3-stellig mit führenden Nullen
-                return str(pgnr).zfill(3)
+                return self.__pgorder.zfill(3)
 
         # Seitenformat-Name der aktiven Grafik
         @property
-        def page_format_name(self):
+        def page_format_name(self) -> str:
             setgrphpg = self.__getgrphpg()  
             return setgrphpg.GetAttribute('aDrwFrm')
 
-        # Seitenausrichtung der aktiven Grafik (0=Hochformat, 1=Querformat)
-        @property
-        def page_orientation(self):
-            setgrphpg = self.__getgrphpg()
-            orientation = int(setgrphpg.GetAttribute('iDrwFrm'))
-            return orientation
-
-        # Rückgabe des Seitenabmessungen der aktiven Grafik
-        # def _page_dimensions(self):
-        #     aDrwFrm = self._page_formatname()
-        #     width = aDrwFrm.GetAttribute('iSizeX')
-        #     height = aDrwFrm.GetAttribute('iSizeY')
-        #     return (width, height)
-
-        def __datesuffix(self):
+        def __datesuffix(self) -> str:
                 if (self.__datesuffix == True):
                         date = dt.datetime.now().strftime('%Y%m%d')
                         return '_' + date
                 return ''
 
-        def __getgrphpg(self):
+        def __getgrphpg(self) -> object:
             diag = self.page.GetAttribute('pGrph')
-            setgrphpgs = diag.GetChildren(1, 'Format.SetGrfpage', 1)
+            setgrphpgs = diag.GetChildren(1, PfClsType.SetGrfpage, 1)
             return setgrphpgs[0]
 
 
@@ -125,48 +122,46 @@ def main(desktop):
                         app.PrintError(errmsg)
                 exit()
 
-        # Powerfactory-Projekteinstellungen in Dictionary Speichern
+        # Seitenformate aus den Powerfactory-Projekteinstellungen in Dictionary Speichern
         # Projekt\Einstellungen\Page Formats
-        pageformats = ProjectPageFormats(script.PageFormats, '*.SetFormat')
+        pageformats = ProjectPageFormats(script.PageFormats, PfClsType.SetFormat)
 
         # ---> '############### STARTE EXPORT: ###############'
         # Informationsausgabe in PowerFactory
-        strInfoHeader = f' STARTE {exportfiletype.upper()}-EXPORT: '
+        strInfoHeader = f' STARTE {filetype.upper()}-EXPORT: '
         app.PrintInfo(strInfoHeader.center(50, '#'))
 
         # Inhalt des GraphicsBoard-Objektes in neue Liste 'deskpages' laden
-        graphicboards=desktop.GetContents('*.SetDeskpage')
+        graphicboards=desktop.GetContents(PfClsType.SetDeskpage)
         deskpages = GetDeskpageList(graphicboards, exportpath, prefixtuple[calctypeindex], setdatesuffix)
 
         exportssuccess = 0
         exportsfailure = 0
         for dpg in deskpages:
-                # Überprüfen, ob deskpage eine Klasseninstanz von ExportDeskPage ist
-                if isinstance(dpg, ExportDeskPage) == True:
-                        p = dpg.page
-                        pname = p.GetAttribute('loc_name') # oder auch nur deskpage.loc_name falls Attribut bekannt
-                        ffname = dpg.fullfilename
+                p = dpg.page
+                pname = p.GetAttribute('loc_name') # oder auch nur deskpage.loc_name falls Attribut bekannt
+                ffname = dpg.fullfilename
 
-                        app.PrintPlain(f'Exportiere Grafik {pname}') # nach {ffname}')
+                app.PrintPlain(f'Exportiere Deskpage {pname}') # nach {ffname}')
 
-                        if file_exists(ffname) == True:
-                                if delete_file(ffname) == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
-                                        dpg.export = False
-                                        #exportsfailure += 1
+                if file_exists(ffname) == True:
+                        if delete_file(ffname) == False: #Wenn die Datei nicht gelöscht werden kann, Fehlermeldung ausgeben
+                                dpg.file_export = False
+                                #exportsfailure += 1
 
+                
+                if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
+                        app.SetGraphicUpdate(1)        
+                        app.SetGuiUpdateEnabled(1)
+
+                        if ExportDeskpage(dpg) == True:
+                                dpg.file_export = True
+                                if SetupPdfPage(dpg, pageformats) == True:
+                                        dpg.file_formation = True
                         
-                        if desktop.Show(p) == 0: # Grafik aufrufen und anzeigen
-                                app.SetGraphicUpdate(1)        
-                                app.SetGuiUpdateEnabled(1)
 
-                                if ExportDeskpage(dpg) == True:
-                                        dpg.pdfexport = True
-                                        if SetupPdfPage(dpg, pageformats) == True:
-                                                dpg.pdfformat = True
                                 
-
-                                        
-                                        #exportssuccess += 1                  
+                                #exportssuccess += 1                  
 
         info_str = f'Erfolgreiche Exporte: {exportssuccess}, Fehlgeschlagene Exporte: {exportsfailure}'
         
@@ -205,24 +200,28 @@ def SetScriptDateSuffix(datesuffix):
         return bool(script.DateSuffix) # Wahrheitswert zurück geben
 
 # Alle Netzgrafiken der Grafiksammlung des aktiven Berechnungsfalles durchlaufen,
-# einer 'ExportDeskPage'-Klasse übergeben und selbige in einer Liste speichern
+# einer 'Deskpage'-Klasse übergeben und selbige in einer Liste speichern
 def GetDeskpageList(graphicboards: object, exportpath: str, calctype: str, setdatesuffix: bool):
-        graphicboardlist = [] # Leere Liste für ExportDeskPage-Klassen erstellen
+        graphicboardlist = [] # Leere Liste für Deskpage-Klassen erstellen
         for graphicboard in graphicboards:
                 # Eigenschaft 'Seite wiederverwerten' der Grafikseite auslesen und als Ausgabe-Option verwenden
                 pgexport = bool(graphicboard.iRecycl) # oder auch anders geschrieben: deskpage.GetAttribute('iRecycl')
                 if pgexport == True:
-                        deskpageclass = ExportDeskPage(graphicboard, exportpath, calctype, exportfiletype, setdatesuffix)
+                        deskpageclass = Deskpage(graphicboard,
+                                                exportpath,
+                                                calctype,
+                                                filetype,
+                                                setdatesuffix)
                         graphicboardlist.append(deskpageclass)
         return graphicboardlist
 
 # Export der Netzgraphik
-def ExportDeskpage(deskpageclass: ExportDeskPage):
+def ExportDeskpage(deskpageclass: Deskpage) -> bool:
         try:
                 # QUELLE: https://www.digsilent.de/en/faq-reader-powerfactory/how-do-i-export-a-graphic-using-python.html
                 # Aufruf des CommonWrite-Objektes von Powerfactory
                 comWr = app.GetFromStudyCase('ComWr')
-                comWr.SetAttribute('iopt_rd', exportfiletype)
+                comWr.SetAttribute('iopt_rd', filetype)
                 #comWr.iopt_nonly = 0  # to write a file
                 comWr.SetAttribute('iopt_savas', iopt_savas)
                 comWr.SetAttribute('f', deskpageclass.fullfilename) # Filename
@@ -235,7 +234,7 @@ def ExportDeskpage(deskpageclass: ExportDeskPage):
                 return False
 
 # Skaliert die Seite der exportierten PDF-Datei und fügt Meta-Daten hinzu
-def SetupPdfPage(deskpageclass: ExportDeskPage, pageformats: dict):
+def SetupPdfPage(deskpageclass: Deskpage, pageformats: dict) -> bool:
         # Prüfen, ob der Name des in der Klasse gespeicherten Seitenformats
         # im Dictionary enthalten ist
         key = deskpageclass.page_format_name
@@ -251,7 +250,7 @@ def SetupPdfPage(deskpageclass: ExportDeskPage, pageformats: dict):
                         # Skalieren der PDF-Datei auf die neue Zielhöhe
                         target_width, target_height = pageformats[key]
                         scale = ScaleFactor(source_height, target_height)
-                        app.PrintPlain(f'{key} Breite: {source_width}, Höhe: {source_height} => Breite: {target_width}, Höhe: {target_height} Skalierung: {scale}') # TEST
+                        #app.PrintPlain(f'{key} Breite: {source_width}, Höhe: {source_height} => Breite: {target_width}, Höhe: {target_height} Skalierung: {scale}') # TEST
                         
                         pdfpage.scale_by(scale)
 
@@ -279,17 +278,17 @@ def SetupPdfPage(deskpageclass: ExportDeskPage, pageformats: dict):
 
 
 # Berechnet den Skalierungsfaktor anhand der alten Höhe in [mm] zur neuen Höhe in [mm]
-def ScaleFactor(source_height, target_height):
+def ScaleFactor(source_height, target_height) -> int:
         return target_height/source_height
 
 # Auslesen aller in den Projekteinstellungen vorhandenen Seitenformate
 # Rückgabe eines Dictionary {'Seitenformatname':[Breite, Höhe]}
-def ProjectPageFormats(ext_script_obj, contenttype: str):
+def ProjectPageFormats(ext_script_obj, contenttype: str) -> dict:
         pageformats = {} # Leeres Dictionary
         prjpageformats = ext_script_obj.GetContents(contenttype)
         
         # Alle Seitenformate durchlaufen, Werte auslesen und
-        # in Dictionary speichern
+        # als Dictionary zurückgeben
         for pgformat in prjpageformats:
                 fname = pgformat.GetAttribute('loc_name') # Namen auslesen
                 f_width = pgformat.GetAttribute('iSizeX') # Seitenbreite auslesen
@@ -299,10 +298,10 @@ def ProjectPageFormats(ext_script_obj, contenttype: str):
 
         return pageformats
 
-def file_exists(fullfilename):
+def file_exists(fullfilename) -> bool:
         return os.path.isfile(fullfilename)
 
-def delete_file(fullfilename):
+def delete_file(fullfilename) -> bool:
         try: # Versuche die vorhandenen Datei zu löschen
                 os.remove(fullfilename)
                 return True
