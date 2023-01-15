@@ -35,53 +35,46 @@ class PfClsType:
         SetFormat = '*.SetFormat'
         SetGrfpage = '*.SetGrfpage'
         
-
-#@dataclass(frozen=True)
+@dataclass
 class Deskpage:
         page: object
         path: str
         calculation_type: str
         file_extension: str
-        datesuffix: bool
+        datesuffix: bool = False
+        file_export_state: bool = False
+        file_formation_state: bool = False
 
-        def __init__(self, page, path, ctype, file_extension, datesuffix = False) -> None:
-                self.page = page
-                self.path = path
-                self.ctype = ctype
-                self.file_extension = file_extension
-                self.datesuffix = datesuffix
-                self.file_export: bool = False
-                self.file_formation: bool = False
-                self.__pgname: str = page.GetAttribute('loc_name') # Name des Objektes in der Grafiksammlung
-                self.__pgorder: str = str(page.GetAttribute('order')) # Seitennummer (= Reihenfolge in der Grafiksammlung -> immer eine Zahl in PF)
+        #TODO
+        def __post_init__(self) -> None:
+                self.__pgname: str = self.page.GetAttribute('loc_name')
+                self.__pgordernr: str = str(self.page.GetAttribute('order'))
 
-        # Dateiname ohne Erweiterung
+        # Dateiname ohne Erweiterung und ohne Verzeichnis
         @property
-        def filename(self) -> str:
-                # Rückgabe des Dateinamens (ohne Verzeichnis)
-                return f'{self.ctype}_{self.page_number}_{self.__pgname}{self.__datesuffix()}.{self.file_extension}'
+        def _filename(self) -> str:
+                return f'{self.calculation_type}_{self.page_number}_{self.__pgname}{self.__datesuffix_string()}.{self.file_extension}'
                 
         # vollständiger Dateinamens inkl. Pfad
         @property
-        def fullfilename(self)-> str:
+        def _fullfilename(self)-> str:
                 return os.path.join(self.path, self.filename)
 
         # Seitennummer
         @property
-        def page_number(self) -> str:
+        def _page_number(self) -> str:
                 # umwandeln der Seitennummer 3-stellig mit führenden Nullen
-                return self.__pgorder.zfill(3)
+                return self.__pgordernr.zfill(3)
 
         # Seitenformat-Name der aktiven Grafik
         @property
-        def page_format_name(self) -> str:
+        def _page_format_name(self) -> str:
             setgrphpg = self.__getgrphpg()  
             return setgrphpg.GetAttribute('aDrwFrm')
 
-        def __datesuffix(self) -> str:
-                if (self.__datesuffix == True):
-                        date = dt.datetime.now().strftime('%Y%m%d')
-                        return '_' + date
+        def __datesuffix_string(self) -> str:
+                if self.datesuffix:
+                        return '_' + dt.datetime.now().strftime('%Y%m%d')
                 return ''
 
         def __getgrphpg(self) -> object:
@@ -89,6 +82,11 @@ class Deskpage:
             setgrphpgs = diag.GetChildren(1, PfClsType.SetGrfpage, 1)
             return setgrphpgs[0]
 
+class ScriptDataValidation:
+        def __init__(self, script) -> None:
+                self.script = script
+                self.exportpath: str = script.ExportPath #Skript Input-Parameter 'ExportPath'
+                
 
 # FUNKTIONEN / DEFINITITIONEN
 def main(desktop):
