@@ -11,6 +11,7 @@
 import powerfactory # Importieren des DigSilent Powerfactory Moduls
 import os
 import datetime as dt
+from enum import Enum
 from dataclasses import dataclass
 from PyPDF2 import PdfWriter, PdfReader
 
@@ -30,10 +31,10 @@ ptmm_converter = float(0.3527777778) # Umrechnungsfaktor Punkt zu 'mm'
 
 # KLASSEN
 # Enumerator für PowerFactory Klassen-Typen
-class PfClsType:
-        SetDeskpage = '*.SetDeskpage'
-        SetFormat = '*.SetFormat'
-        SetGrfpage = '*.SetGrfpage'
+class PowfactClassType(Enum):
+        SETDESKPAGE = '*.SetDeskpage'
+        SETFORMAT = '*.SetFormat'
+        SETGRFPAGE = '*.SetGrfpage'
         
 @dataclass
 class Deskpage:
@@ -47,13 +48,13 @@ class Deskpage:
 
         #TODO
         def __post_init__(self) -> None:
-                self.__pgname: str = self.page.GetAttribute('loc_name')
-                self.__pgordernr: str = str(self.page.GetAttribute('order'))
+                self._pgname: str = self.page.GetAttribute('loc_name')
+                self._pgordernr: str = str(self.page.GetAttribute('order'))
 
         # Dateiname ohne Erweiterung und ohne Verzeichnis
         @property
         def _filename(self) -> str:
-                return f'{self.calculation_type}_{self.page_number}_{self.__pgname}{self.__datesuffix_string()}.{self.file_extension}'
+                return f'{self.calculation_type}_{self.page_number}_{self._pgname}{self.__datesuffix_string()}.{self.file_extension}'
                 
         # vollständiger Dateinamens inkl. Pfad
         @property
@@ -79,32 +80,53 @@ class Deskpage:
 
         def __getgrphpg(self) -> object:
             diag = self.page.GetAttribute('pGrph')
-            setgrphpgs = diag.GetChildren(1, PfClsType.SetGrfpage, 1)
+            setgrphpgs = diag.GetChildren(1, PowfactClassType.SETGRFPAGE, 1)
             return setgrphpgs[0]
 
-class ScriptDataValidation:
-        def __init__(self, script) -> None:
-                self.script = script
-                self.exportpath: str = script.ExportPath #Skript Input-Parameter 'ExportPath'
-                
+@dataclass (frozen=True)
+class ScriptDataValidator:
+        """Klasse zur Überprüfung der Eingabeparameter und externen Objekte des Skriptes """
+        script: object
+
+        
+        def __post_init__(self, script) -> None:
+                self.__exportpath: str = script.GetInputParameterString('ExportPath') #Skript Input-Parameter 'ExportPath'
+                self.__subdir: str = script.GetInputParameterString('SubDir') #Skript Input-Parameter 'SubDir'
+                self.__calctype: str = script.GetInputParameterString('CalcType') #Skript Input-Parameter 'CalcType'
+                self.__subdir_by_pageformat: bool = bool(script.GetInputParameterInt('subdir_by_pageformat')) #Skript Input-Parameter 'PageFormatSubDir'
+                self.__add_dateSuffix: bool = bool(script.GetInputParameterInt('add_dateSuffix')) #Skript Input-Parameter 'add_dateSuffix'
+                self.__project_pageformats: object = script.GetExternalObject('PageFormats') #Skript Externes Objekt PageFormats
+        
+        @property
+        def exportpath(self):
+                if os.path.exists(self.__exportpath) == False or self.__exportpath == '':
+
+                        return ''
+                return os.path.join(self.__exportpath, self.__subdir)
+
+        @property
+        def calctype(self):
+                pass
+
+        @property
+        def exportpath(self):
+                pass
+
+        @property
+        def exportpath(self):
+                pass
 
 # FUNKTIONEN / DEFINITITIONEN
 def main(desktop):
-        prefixtuple = ('Base', 'Ldfl', 'Shc3', 'Shc1') # Tuple-Collection der Präfixe
         errormsgs = [] # Leere Liste für Fehlermeldungen erstellen
 
         # Skript-Eingabedaten überprüfen
+        data = ScriptDataValidator()
 
         # Überprüfen ob der im Skript angegebene Pfad existiert
         exportpath = CheckExportPath(str(script.ExportPath))
         if exportpath == '':
                 errormsgs.append('Fehlender oder falscher Exportpfad! Skript-Abbruch!')
-
-        # Überprüfen der Berechnungsart
-        calctypeindex = int(script.CalcType)
-        if CalcTypeIndexInRange(calctypeindex, prefixtuple) == False:
-                errormsgs.append('Die Variable CalcType liegt ausserhalb ' + \
-                        'des gültigen Bereiches (0-3)! Skript-Abbruch!')
 
         # Überprüfen ob Datum als Datei-Suffix hinzugefügt werden soll
         setdatesuffix = SetScriptDateSuffix(int(script.DateSuffix))
@@ -122,7 +144,7 @@ def main(desktop):
 
         # Seitenformate aus den Powerfactory-Projekteinstellungen in Dictionary Speichern
         # Projekt\Einstellungen\Page Formats
-        pageformats = ProjectPageFormats(script.PageFormats, PfClsType.SetFormat)
+        pageformats = ProjectPageFormats(script.PageFormats, PowfactClassType.SETFORMAT)
 
         # ---> '############### STARTE EXPORT: ###############'
         # Informationsausgabe in PowerFactory
@@ -130,8 +152,8 @@ def main(desktop):
         app.PrintInfo(strInfoHeader.center(50, '#'))
 
         # Inhalt des GraphicsBoard-Objektes in neue Liste 'deskpages' laden
-        graphicboards=desktop.GetContents(PfClsType.SetDeskpage)
-        deskpages = GetDeskpageList(graphicboards, exportpath, prefixtuple[calctypeindex], setdatesuffix)
+        graphicboards=desktop.GetContents(PowfactClassType.SETDESKPAGE)
+        deskpages = GetDeskpageList(graphicboards, exportpath, calctype, setdatesuffix)
 
         exportssuccess = 0
         exportsfailure = 0
