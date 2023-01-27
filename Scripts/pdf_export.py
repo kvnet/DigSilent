@@ -301,22 +301,7 @@ def SetupPdfPage(deskpageclass: Deskpage, pageformats: dict) -> bool:
 def ScaleFactor(source_height, target_height) -> int:
         return target_height/source_height
 
-# Auslesen aller in den Projekteinstellungen vorhandenen Seitenformate
-# Rückgabe eines Dictionary {'Seitenformatname':[Breite, Höhe]}
-def ProjectPageFormats(ext_script_obj, contenttype: str) -> dict:
-        pageformats = {} # Leeres Dictionary
-        prjpageformats = ext_script_obj.GetContents(contenttype)
-        
-        # Alle Seitenformate durchlaufen, Werte auslesen und
-        # als Dictionary zurückgeben
-        for pgformat in prjpageformats:
-                fname = pgformat.GetAttribute('loc_name') # Namen auslesen
-                f_width = pgformat.GetAttribute('iSizeX') # Seitenbreite auslesen
-                f_height = pgformat.GetAttribute('iSizeY') # Seitenhöhe auslesen
-                
-                pageformats[fname] = [f_width, f_height]
 
-        return pageformats
 
 def file_exists(fullfilename) -> bool:
         return os.path.isfile(fullfilename)
