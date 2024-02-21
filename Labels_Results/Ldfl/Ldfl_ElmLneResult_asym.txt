@@ -1,13 +1,11 @@
 $C ---- Format für Leitung ----
 $C
 $C Lastflussberechnung:
-$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C Berechnungsmethode: AC Lastfluss, asymetrisch, Mitsystem
 $C
 $C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
 $C
 $C Last-Option: Lastskalierung an definierten Abgängen
 $C
-#=#.## # $R,_IFNOT(e:outserv=1),@:~m:S:_LOCALBUS,@:m:S:_LOCALBUS,@:[m:S:_LOCALBUS
-#=#.## # $R,_IFNOT(e:outserv=1),@:~m:P:_LOCALBUS,@:m:P:_LOCALBUS,@:[m:P:_LOCALBUS
 I=#.## # $R,_IFNOT(e:outserv=1),@:m:Imax:_LOCALBUS,@:[m:Imax:_LOCALBUS
 cos phi=#.## $R,_IFNOT(e:outserv=1),@:m:cosphisum:_LOCALBUS
