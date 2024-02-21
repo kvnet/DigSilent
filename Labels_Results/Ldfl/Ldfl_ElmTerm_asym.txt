@@ -1,7 +1,7 @@
 $C ---- Format für zusätzliche Textbox Klemmleiste ----
 $C
 $C Lastflussberechnung:
-$C Berechnungsmethode: AC Lastfluss, symetrisch, Mitsystem
+$C Berechnungsmethode: AC Lastfluss, asymetrisch, Mitsystem
 $C
 $C Temperaturabhängigkeit Leitungs/Kabel-Widerstände: ...bei 20°C
 $C
@@ -15,5 +15,5 @@ $C Nennspannung Sammelschienentyp = 400V
 U #.## # $N,_IFNOT(t:chr_name=1PH),@:m:Ul:A,@:[m:Ul:A
 u #.### # $N,_IFNOT(t:chr_name=1PH),@:m:ul:A,@:[m:ul:A
 $C Nennspannung Sammelschienentyp = 230V
-Uph #.## # $N,_IF(t:chr_name=1PH),@:m:Upht:A,@:[m:Upht:A
-uph #.### # $N,_IF(t:chr_name=1PH),@:m:upht:A,@:[m:upht:A
+Uph #.## # $N,_IF(t:chr_name=1PH),@:m:Umin,@:[m:Umin
+uph #.### # $N,_IF(t:chr_name=1PH),@:m:umin:A,@:[m:umin
